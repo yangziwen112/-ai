@@ -206,11 +206,11 @@ async function publicDatabase(db, query, intent = {}) {
 
 async function runTools({ db, query, intent = {} }) {
   const requested = Array.isArray(intent.tools) ? intent.tools : []
-  const results = []
-  if (requested.includes('current_time')) results.push(currentTime(intent.timeZone || 'Asia/Shanghai'))
-  if (requested.includes('public_database')) results.push(await publicDatabase(db, query, intent))
-  if (requested.includes('web_search')) results.push(await webSearch(query))
-  return results
+  const tasks = []
+  if (requested.includes('current_time')) tasks.push(Promise.resolve(currentTime(intent.timeZone || 'Asia/Shanghai')))
+  if (requested.includes('public_database')) tasks.push(publicDatabase(db, query, intent))
+  if (requested.includes('web_search')) tasks.push(webSearch(query))
+  return Promise.all(tasks)
 }
 
 module.exports = { currentTime, webSearch, publicDatabase, runTools }

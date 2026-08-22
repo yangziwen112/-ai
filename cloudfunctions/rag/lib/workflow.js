@@ -85,6 +85,7 @@ function createWorkflow(db) {
 }
 
 async function runWorkflow(db, input) {
+  const startedAt = Date.now()
   const traceId = input.traceId || crypto.randomBytes(8).toString('hex')
   const app = createWorkflow(db)
   const result = await app.invoke({ ...input, traceId, retryCount: 0, trace: [] })
@@ -104,6 +105,7 @@ async function runWorkflow(db, input) {
       reviewStatus: result.review?.approved ? 'approved' : 'fallback',
       reviewScore: result.review?.score || 0,
       retryCount: result.retryCount || 0,
+      latencyMs: Date.now() - startedAt,
       traceId,
       stages: (result.trace || []).map(item => ({ ...item }))
     }

@@ -169,6 +169,7 @@ docs/                          产品、架构、部署和研究文档
 - [个人校园聚合平台实践指南](docs/personal-ai-campus-platform-guide.md)
 - [创新方向与未来路线图](docs/innovation-and-roadmap.md)
 - [相关项目研究与高级实践](docs/advanced-practice-research.md)
+- [校园 Agent 工程实践手册](docs/agent-engineering-playbook.md)
 - [项目叙事与整体规划](docs/project-narrative-and-plan.md)
 - [界面截图说明](docs/screenshots/README.md)
 - [AI 多智能体工作流](docs/ai_multi_agent_workflow.md)
