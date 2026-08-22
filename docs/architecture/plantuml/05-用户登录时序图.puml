@@ -1,0 +1,61 @@
+@startuml 用户登录时序图
+
+actor 用户 as User
+participant "登录页面UI\n(auth-login)" as UI
+participant "认证工具\n(auth.js)" as Auth
+participant "请求工具\n(request.js)" as Request
+participant "云函数\n(api)" as CloudFunc
+participant "Express后端\n(可选)" as Express
+database "云数据库\n(users集合)" as CloudDB
+database "MongoDB\n(可选)" as MongoDB
+
+User -> UI: 输入账号、密码、身份
+activate UI
+
+UI -> Auth: 调用login()\n验证输入
+activate Auth
+Auth -> Auth: 检查字段有效性
+Auth --> UI: 返回验证结果
+deactivate Auth
+
+UI -> Request: callApi('auth/login',\n{username, password, role})
+activate Request
+
+alt 云函数路由
+  Request -> CloudFunc: 调用云函数
+  activate CloudFunc
+  CloudFunc -> CloudDB: 查询用户数据\n(username)
+  activate CloudDB
+  CloudDB --> CloudFunc: 返回用户记录
+  deactivate CloudDB
+  
+  CloudFunc -> CloudFunc: 验证密码
+  CloudFunc -> CloudFunc: 验证身份角色
+  CloudFunc --> Request: 返回结果\n{ok: true, user: {...}}
+  deactivate CloudFunc
+  
+else Express后端路由
+  Request -> Express: 调用Express API\nPOST /auth/login
+  activate Express
+  Express -> MongoDB: 查询用户数据
+  activate MongoDB
+  MongoDB --> Express: 返回用户记录
+  deactivate MongoDB
+  
+  Express -> Express: 验证密码和角色
+  Express --> Request: 返回用户信息
+  deactivate Express
+end
+
+Request --> UI: 返回用户对象
+deactivate Request
+
+UI -> UI: 保存到wx.storage\n(本地存储)
+UI -> UI: 保存到app.globalData\n(全局变量)
+
+UI --> User: 显示成功提示
+UI --> User: 跳转到首页
+deactivate UI
+
+@enduml
+

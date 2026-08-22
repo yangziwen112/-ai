@@ -1,0 +1,69 @@
+@startuml 用户登录流程图
+
+start
+
+:打开小程序;
+
+if (是否登录?) then (是)
+  :加载用户信息;
+  :进入首页;
+  stop
+else (否)
+  :跳转登录页面;
+  
+  :呈现登录选项;
+  
+  if (用户选择?) then (登录)
+    :输入账号密码;
+    :选择身份角色\n(学生/管理员);
+    
+    :调用云函数\nauth/login;
+    
+    if (验证通过?) then (成功)
+      :保存用户信息\n到本地Storage;
+      :保存到全局变量\nglobalData;
+      :显示"登录成功";
+      :跳转首页;
+    else (失败)
+      :显示错误提示;
+      :返回登录页面;
+      stop
+    endif
+    
+  else if (注册) then
+    :跳转注册页面;
+    :输入注册信息;
+    
+    :调用云函数\nauth/register;
+    
+    if (注册成功?) then (是)
+      :显示"注册成功";
+      :返回登录页面;
+    else (否)
+      :显示错误信息;
+      stop
+    endif
+    
+  else (重置密码)
+    :跳转密码重置页;
+    :输入用户名和身份证;
+    :输入新密码;
+    
+    :调用云函数\nauth/resetPassword;
+    
+    if (重置成功?) then (是)
+      :显示"重置成功";
+      :返回登录页面;
+    else (否)
+      :显示错误信息;
+      stop
+    endif
+  endif
+endif
+
+:进入首页;
+
+stop
+
+@enduml
+

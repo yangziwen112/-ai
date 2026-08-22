@@ -1,0 +1,73 @@
+@startuml 数据初始化活动图
+
+||管理员|
+start
+:访问调试/管理页面;
+
+||系统|
+:检查用户权限\n(role == admin);
+
+if (权限检查?) then (通过)
+  :显示管理工具菜单;
+else (失败)
+  :显示权限拒绝提示;
+  stop
+endif
+
+||管理员|
+:选择初始化操作;
+
+if (操作类型?) then (初始化集合)
+  ||系统|
+  :检查所有集合是否存在;
+  
+  fork
+    :创建/验证users集合;
+  fork again
+    :创建/验证tags集合;
+  fork again
+    :创建/验证sources集合;
+  fork again
+    :创建/验证contents集合;
+  fork again
+    :创建/验证subscriptions集合;
+  fork again
+    :创建/验证favorites集合;
+  fork again
+    :创建/验证history集合;
+  fork again
+    :创建/验证banners集合;
+  end fork
+  
+  :返回初始化结果\n(成功/失败计数);
+  
+else if (创建示例数据) then
+  :拒绝写入演示数据;
+  :提示运行真实采集器\n或使用管理员发布;
+  
+else if (清理重复数据) then
+  :扫描users、tags、sources集合;
+  :识别重复项\n(按username/name);
+  :删除重复项;
+  :返回清理报告\n(删除数量);
+  
+else (初始化默认用户)
+  :拒绝创建固定默认用户;
+  :提示通过注册\n或管理员授权创建用户;
+endif
+
+||管理员|
+:查看结果报告;
+
+:显示操作统计\n(成功/失败数量);
+
+if (需要继续操作?) then (是)
+  :选择其他操作;
+else (否)
+  :返回管理页面;
+endif
+
+stop
+
+@enduml
+

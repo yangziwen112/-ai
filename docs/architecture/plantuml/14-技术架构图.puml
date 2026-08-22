@@ -1,0 +1,59 @@
+@startuml 技术架构图
+
+!define RECTANGLE class
+
+skinparam rectangle {
+  BackgroundColor<<frontend>> LightBlue
+  BackgroundColor<<cloudFunc>> LightCyan
+  BackgroundColor<<backend>> LightGreen
+  BackgroundColor<<data>> LightYellow
+}
+
+rectangle "前端层 (WeChat Mini App)" <<frontend>> {
+  rectangle "小程序页面\n(WXML + WXSS + JS)" as Pages
+  rectangle "自定义组件\n(Components)" as Components
+  rectangle "工具函数\n(Utils)" as Utils
+}
+
+rectangle "后端层 (双架构支持)" {
+  rectangle "云函数层 (WxCloud)" <<cloudFunc>> {
+    rectangle "API云函数\n(wx-server-sdk)" as CloudFunc
+    rectangle "路由分发器" as CloudRouter
+  }
+  
+  rectangle "Express后端" <<backend>> {
+    rectangle "Express服务器\n(Node.js)" as ExpressServer
+    rectangle "API路由处理\n(/content, /meta, /favorites等)" as ExpressRouter
+    rectangle "业务逻辑层\n(Service Layer)" as Service
+  }
+}
+
+rectangle "数据层" <<data>> {
+  database "微信云数据库\n(NoSQL - JSON)" as CloudDB
+  database "MongoDB\n(替代方案)" as MongoDB
+  storage "云存储\n(File Storage)" as CloudStorage
+}
+
+rectangle "外部服务" {
+  rectangle "微信官方API\n(登录、支付等)" as WechatAPI
+  rectangle "第三方服务\n(可选)" as ThirdParty
+}
+
+Pages --> Components : use
+Pages --> Utils : use
+Pages --> CloudFunc : call
+Pages --> ExpressServer : call (可配置)
+
+CloudFunc --> CloudRouter : dispatch
+CloudRouter --> Service : invoke
+ExpressServer --> ExpressRouter : dispatch
+ExpressRouter --> Service : invoke
+
+Service --> CloudDB : query/update
+Service --> MongoDB : query/update (备选)
+Service --> CloudStorage : upload/download
+Service --> WechatAPI : call
+Service --> ThirdParty : call
+
+@enduml
+

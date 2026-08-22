@@ -1,0 +1,9 @@
+{
+  "name": "crawler",
+  "version": "2.0.0",
+  "description": "校园聚合信息采集器 - 多来源抓取、标准化、去重与分类发布",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "4.0.2"
+  }
+}

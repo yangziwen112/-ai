@@ -1,0 +1,127 @@
+@startuml 民大通系统用例图
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "学生用户" as Student
+actor "游客" as Guest
+actor "管理员" as Admin
+actor "自动采集器" as Crawler
+
+rectangle "民大通 校园信息聚合平台" {
+  
+  ' 用户认证模块
+  package "用户认证模块" {
+    usecase "账号登录" as UC1
+    usecase "用户注册" as UC1b
+    usecase "密码重置" as UC2
+    usecase "身份验证" as UC3
+    usecase "身份证验证" as UC4
+  }
+  
+  ' 内容浏览模块
+  package "内容浏览模块" {
+    usecase "浏览校园资讯" as UC5
+    usecase "标签过滤" as UC6
+    usecase "搜索功能" as UC7
+    usecase "查看详情" as UC8
+  }
+
+  package "校园互动模块" {
+    usecase "浏览校园墙" as UC22
+    usecase "发布与评论" as UC23
+    usecase "私信与好友" as UC24
+    usecase "使用AI助手" as UC25
+  }
+  
+  ' 订阅管理模块
+  package "订阅管理模块" {
+    usecase "关注标签" as UC9
+    usecase "取消关注" as UC10
+    usecase "查看订阅内容" as UC11
+  }
+  
+  ' 收藏管理模块
+  package "收藏管理模块" {
+    usecase "添加收藏" as UC12
+    usecase "取消收藏" as UC13
+    usecase "查看收藏列表" as UC14
+    usecase "删除收藏" as UC14b
+    usecase "清空所有收藏" as UC14c
+  }
+  
+  ' 历史记录模块
+  package "历史记录模块" {
+    usecase "浏览历史" as UC15
+    usecase "删除历史" as UC15b
+    usecase "清空所有历史" as UC15c
+  }
+  
+  ' 内容管理模块 (管理员)
+  package "内容管理模块" {
+    usecase "发布内容" as UC19
+    usecase "编辑内容" as UC20
+    usecase "删除内容" as UC21
+  }
+  
+  ' 系统管理模块
+  package "系统管理模块" {
+    usecase "初始化数据库" as UC16
+    usecase "创建示例数据" as UC17
+    usecase "清理重复数据" as UC18
+    usecase "采集并标准化资讯" as UC26
+  }
+}
+
+' 游客关联
+Guest --> UC5
+Guest --> UC7
+Guest --> UC8
+Guest --> UC22
+Guest --> UC25 : 最多3次
+
+' 学生用户关联
+Student --> UC1
+Student --> UC1b
+Student --> UC2
+Student --> UC5
+Student --> UC8
+Student --> UC9
+Student --> UC10
+Student --> UC11
+Student --> UC12
+Student --> UC13
+Student --> UC14
+Student --> UC14b
+Student --> UC14c
+Student --> UC15
+Student --> UC15b
+Student --> UC15c
+Student --> UC22
+Student --> UC23
+Student --> UC24
+Student --> UC25
+
+' 管理员关联
+Admin --> UC1
+Admin --> UC2
+Admin --> UC19
+Admin --> UC20
+Admin --> UC21
+Admin --> UC16
+Admin --> UC17
+Admin --> UC18
+Admin --> UC26
+Crawler --> UC26
+
+' Include关系
+UC1 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<include>>
+UC19 ..> UC3 : <<include>>
+
+' Extend关系
+UC5 <.. UC6 : <<extend>>
+UC5 <.. UC7 : <<extend>>
+
+@enduml
+

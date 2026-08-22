@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "管理中心",
+  "navigationBarBackgroundColor": "#172554",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "card-item": "../../components/card-item/index"
+  }
+}

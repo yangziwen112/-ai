@@ -1,0 +1,139 @@
+<view class="page-subscription">
+  <!-- 顶部标题区域 -->
+  <view class="header-section">
+    <view class="header-title">
+      <text class="title-icon">🏷️</text>
+      <text class="title-text">关注标签</text>
+    </view>
+    <view class="header-subtitle">选择您感兴趣的内容标签</view>
+  </view>
+
+  <!-- 所有标签列表 -->
+  <view class="section-card">
+    <view class="card-header">
+      <view class="header-left">
+        <text class="header-icon">📌</text>
+        <text class="header-text">选择标签</text>
+      </view>
+      <view class="tag-count">已关注 {{followedCount}} 个</view>
+    </view>
+    
+    <view class="all-tags-container">
+      <block wx:if="{{allTags.length > 0}}">
+        <view 
+          class="tag-option {{item.followed ? 'followed' : ''}}" 
+          wx:for="{{allTags}}" 
+          wx:key="_id"
+          bindtap="onToggleTag"
+          data-id="{{item._id}}"
+          data-followed="{{item.followed}}"
+        >
+          <view class="tag-icon">{{item.icon || '🔖'}}</view>
+          <view class="tag-info">
+            <text class="tag-name">{{item.name}}</text>
+            <text class="tag-desc" wx:if="{{item.description}}">{{item.description}}</text>
+          </view>
+          <view class="tag-status">
+            <text class="status-icon" wx:if="{{item.followed}}">✓</text>
+            <text class="status-text">{{item.followed ? '已关注' : '关注'}}</text>
+          </view>
+        </view>
+      </block>
+      <view class="empty-hint" wx:else>
+        <text class="empty-icon">📭</text>
+        <text class="empty-text">暂无可用标签</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关注的标签详情 -->
+  <view class="section-card" wx:if="{{followedTags.length > 0}}">
+    <view class="card-header">
+      <view class="header-left">
+        <text class="header-icon">⭐</text>
+        <text class="header-text">已关注的标签</text>
+      </view>
+    </view>
+    
+    <view class="followed-tags-container">
+      <view class="followed-tag-item" wx:for="{{followedTags}}" wx:key="_id">
+        <view class="tag-header">
+          <view class="tag-badge">
+            <text class="badge-icon">{{item.icon || '🔖'}}</text>
+            <text class="badge-name">{{item.name}}</text>
+          </view>
+          <view class="unfollow-btn" bindtap="onToggleTag" data-id="{{item._id}}" data-followed="true">
+            <text class="unfollow-text">取消关注</text>
+          </view>
+        </view>
+        
+        <view class="tag-detail" wx:if="{{item.description || item.count}}">
+          <text class="detail-text" wx:if="{{item.description}}">{{item.description}}</text>
+          <text class="detail-count" wx:if="{{item.count}}">相关内容：{{item.count}} 条</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 相关内容展示 -->
+  <view class="section-card" wx:if="{{followedTags.length > 0}}">
+    <view class="card-header">
+      <view class="header-left">
+        <text class="header-icon">📰</text>
+        <text class="header-text">相关内容</text>
+      </view>
+      <view class="content-count">{{relatedContents.length}} 条</view>
+    </view>
+    
+    <view class="related-contents-container">
+      <!-- 加载状态 -->
+      <view class="loading-hint" wx:if="{{loadingContents}}">
+        <text class="loading-text">加载中...</text>
+      </view>
+      
+      <!-- 内容列表 -->
+      <block wx:elif="{{relatedContents.length > 0}}">
+        <view 
+          class="content-item" 
+          wx:for="{{relatedContents}}" 
+          wx:key="_id"
+          bindtap="onContentTap"
+          data-id="{{item._id}}"
+        >
+          <view class="content-header">
+            <view class="content-tag-badge">
+              <text class="tag-badge-icon">{{item.relatedTagIcon || '🔖'}}</text>
+              <text class="tag-badge-text">{{item.relatedTag}}</text>
+            </view>
+            <view class="content-time">{{item.publishTimeText || '最近'}}</view>
+          </view>
+          
+          <view class="content-body">
+            <text class="content-title">{{item.title}}</text>
+            <text class="content-summary" wx:if="{{item.summary}}">{{item.summary}}</text>
+          </view>
+          
+          <view class="content-footer">
+            <view class="footer-item">
+              <text class="footer-icon">📍</text>
+              <text class="footer-text">{{item.location || '地点待定'}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+      
+      <!-- 空状态 -->
+      <view class="empty-hint" wx:else>
+        <text class="empty-icon">📭</text>
+        <text class="empty-text">暂无相关内容</text>
+        <text class="empty-sub">试试关注更多标签</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 订阅提示 -->
+  <view class="subscription-tip">
+    <text class="tip-icon">💡</text>
+    <text class="tip-text">点击标签即可关注，关注后相关内容会在首页优先展示</text>
+  </view>
+</view> 

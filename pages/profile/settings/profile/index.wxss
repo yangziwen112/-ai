@@ -1,0 +1,70 @@
+.profile-settings-page {
+  background: linear-gradient(135deg, #6b8cff 0%, #7c59c6 100%);
+  min-height: 100vh;
+  padding: 24rpx;
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 16rpx;
+  backdrop-filter: blur(10rpx);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid rgba(226, 232, 240, 0.5);
+}
+
+.profile-item:last-child {
+  border-bottom: none;
+}
+
+.profile-label {
+  font-size: 28rpx;
+  color: #334155;
+  font-weight: 500;
+}
+
+.profile-value {
+  font-size: 28rpx;
+  color: #94a3b8;
+}
+
+.avatar-upload {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(107, 140, 255, 0.3);
+}
+
+.upload-btn {
+  background: linear-gradient(135deg, #6b8cff 0%, #7c59c6 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 24rpx;
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.password-btn {
+  background: rgba(107, 140, 255, 0.1);
+  color: #6b8cff;
+  border: 1rpx solid rgba(107, 140, 255, 0.3);
+  border-radius: 24rpx;
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}

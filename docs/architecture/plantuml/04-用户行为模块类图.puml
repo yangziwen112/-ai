@@ -1,0 +1,93 @@
+@startuml 用户行为模块类图
+
+class User {
+  - _id: String
+  - username: String
+  - nickname: String
+  - role: String
+  - avatarUrl: String
+  - createdAt: Number
+  --
+  + getFavorites(): Array<Favorite>
+  + getHistory(): Array<History>
+  + getSubscriptions(): Array<Subscription>
+}
+
+class Favorite {
+  - _id: String
+  - userId: String
+  - contentId: String
+  - ts: Number
+  --
+  + toggle(userId, contentId): Boolean
+  + add(userId, contentId): Boolean
+  + remove(userId, contentId): Boolean
+  + getList(userId, page): Array<Favorite>
+  + isFavorited(userId, contentId): Boolean
+  + clearAll(userId): Boolean
+}
+
+class History {
+  - _id: String
+  - userId: String
+  - contentId: String
+  - ts: Number
+  - duration: Number
+  --
+  + record(userId, contentId, duration): void
+  + getList(userId, page): Array<History>
+  + remove(userId, contentId): Boolean
+  + clearAll(userId): Boolean
+  + getTotalDuration(userId, contentId): Number
+}
+
+class Subscription {
+  - _id: String
+  - userId: String
+  - tagIds: Array<String>
+  - sourceIds: Array<String>
+  - updatedAt: Number
+  --
+  + getTags(): Array<Tag>
+  + getSources(): Array<Source>
+  + addTag(tagId): Boolean
+  + removeTag(tagId): Boolean
+  + addSource(sourceId): Boolean
+  + removeSource(sourceId): Boolean
+  + updateSubscription(tagIds, sourceIds): Boolean
+}
+
+class Content {
+  - _id: String
+  - title: String
+  - summary: String
+  - publishTime: Number
+}
+
+User "1" -- "*" Favorite : has >
+User "1" -- "*" History : has >
+User "1" -- "*" Subscription : has >
+
+Favorite "*" -- "1" Content : refers to >
+History "*" -- "1" Content : refers to >
+
+note top of Favorite
+  用户收藏记录
+  支持添加/删除/查询
+  可清空全部记录
+end note
+
+note top of History
+  用户浏览历史
+  记录浏览时长
+  支持删除单条和清空
+end note
+
+note top of Subscription
+  用户订阅管理
+  记录订阅的标签和来源
+  用于个性化推荐
+end note
+
+@enduml
+

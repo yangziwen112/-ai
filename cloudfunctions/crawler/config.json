@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "timeout": 60,
+  "triggers": [
+    {
+      "name": "dailyCrawl",
+      "type": "timer",
+      "config": "0 0 8 * * * *"
+    }
+  ]
+}

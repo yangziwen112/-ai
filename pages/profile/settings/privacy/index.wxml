@@ -1,0 +1,12 @@
+<view class="privacy-page">
+  <view class="privacy-card">
+    <view class="privacy-item">
+      <text class="privacy-text">允许陌生人私信我</text>
+      <switch 
+        class="privacy-switch" 
+        checked="{{allowStrangerMessages}}" 
+        bindchange="onAllowStrangerMessagesChange"
+      />
+    </view>
+  </view>
+</view>

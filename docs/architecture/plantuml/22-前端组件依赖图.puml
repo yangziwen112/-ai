@@ -1,0 +1,54 @@
+@startuml 前端组件依赖图
+
+package "页面层 (Pages)" {
+  [公开资讯页面]
+  [校园墙页面]
+  [AI 助手页面]
+  [消息页面]
+  [账号与个性化页面]
+  [管理页面]
+}
+
+package "组件层 (Components)" {
+  [card-item 资讯卡片]
+}
+
+package "工具层 (Utils)" {
+  [request 请求封装]
+  [auth 认证工具]
+  [favoriteManager 收藏缓存]
+  [debug-config 联调配置]
+}
+
+package "云函数层 (Cloud Functions)" {
+  [api 业务入口]
+  [crawler 资讯采集]
+  [rag AI 工作流]
+}
+
+database "微信云数据库" as DB
+cloud "微信云存储" as Storage
+
+[公开资讯页面] --> [card-item 资讯卡片]
+[公开资讯页面] --> [request 请求封装]
+[公开资讯页面] --> [favoriteManager 收藏缓存]
+[校园墙页面] --> [request 请求封装]
+[校园墙页面] --> [auth 认证工具]
+[校园墙页面] --> Storage : upload
+[AI 助手页面] --> [request 请求封装]
+[消息页面] --> [request 请求封装]
+[消息页面] --> [auth 认证工具]
+[账号与个性化页面] --> [request 请求封装]
+[账号与个性化页面] --> [auth 认证工具]
+[管理页面] --> [request 请求封装]
+[管理页面] --> [auth 认证工具]
+
+[request 请求封装] --> [api 业务入口]
+[debug-config 联调配置] ..> [auth 认证工具]
+[api 业务入口] --> DB
+[api 业务入口] --> [crawler 资讯采集] : internal token
+[api 业务入口] --> [rag AI 工作流] : internal token
+[crawler 资讯采集] --> DB
+[rag AI 工作流] --> DB : read published contents
+
+@enduml

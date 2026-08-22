@@ -1,0 +1,63 @@
+<!--pages/messages/chat.wxml-->
+<view class="chat-page">
+  <!-- 导航栏 -->
+  <view class="header">
+    <view class="header-left" bindtap="navigateBack">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="header-title">{{ userName || '聊天' }}</text>
+    <view class="header-right"></view>
+  </view>
+
+  <!-- 聊天内容 -->
+  <view class="chat-content" scroll-y="true" bindscrolltolower="loadMoreMessages">
+    <view wx:if="{{ messages.length === 0 && !loading }}" class="empty-state">
+      <text class="empty-text">开始聊天吧</text>
+    </view>
+    
+    <view wx:else>
+      <view 
+        wx:for="{{ messages }}" 
+        wx:key="_id"
+        class="message-item {{ item.senderId === userId ? 'sent' : 'received' }}"
+      >
+        <view class="message-avatar" wx:if="{{ item.senderId !== userId }}" bindtap="showUserInfo" data-user-id="{{ item.senderId }}" data-user-name="{{ item.senderName }}">
+          <text class="avatar-text">{{ item.senderName ? item.senderName.charAt(0) : '用' }}</text>
+        </view>
+        <view class="message-bubble">
+          <text class="message-text">{{ item.content }}</text>
+          <text class="message-time">{{ item.createdAt }}</text>
+        </view>
+        <view class="message-avatar" wx:if="{{ item.senderId === userId }}">
+          <text class="avatar-text">{{ '我' }}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="input-area">
+    <button class="emoji-btn" bindtap="toggleEmojiPanel">
+      <text class="emoji-icon">😊</text>
+    </button>
+    <input
+      class="message-input"
+      placeholder="输入消息..."
+      value="{{ inputValue }}"
+      bindinput="onInputChange"
+      bindconfirm="sendMessage"
+    />
+    <button class="send-btn" bindtap="sendMessage" disabled="{{ !inputValue.trim() }}">
+      <text>发送</text>
+    </button>
+  </view>
+
+  <!-- 表情面板 -->
+  <view class="emoji-panel" wx:if="{{ showEmojiPanel }}">
+    <view class="emoji-grid">
+      <view wx:for="{{ emojis }}" wx:key="*this" class="emoji-item" bindtap="selectEmoji" data-emoji="{{ item }}">
+        <text class="emoji">{{ item }}</text>
+      </view>
+    </view>
+  </view>
+</view>

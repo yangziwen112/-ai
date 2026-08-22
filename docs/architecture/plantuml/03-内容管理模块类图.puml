@@ -1,0 +1,95 @@
+@startuml 内容管理模块类图
+
+class Tag {
+  - _id: String
+  - name: String
+  - icon: String
+  - description: String
+  --
+  + getName(): String
+  + getDescription(): String
+  + getContents(): Array<Content>
+}
+
+class Source {
+  - _id: String
+  - name: String
+  - icon: String
+  - description: String
+  --
+  + getName(): String
+  + getDescription(): String
+  + getContents(): Array<Content>
+}
+
+class Content {
+  - _id: String
+  - title: String
+  - summary: String
+  - description: String
+  - category: String
+  - tags: Array<String>
+  - sourceId: String
+  - sourceName: String
+  - campus: String
+  - images: Array<String>
+  - coverUrl: String
+  - status: String
+  - createdBy: String
+  - publishedBy: String
+  - publishTime: Number
+  - updatedAt: Number
+  - viewCount: Number
+  - favoriteCount: Number
+  - shareCount: Number
+  - hotScore: Number
+  - featured: Boolean
+  --
+  + publish(data): Boolean
+  + edit(data): Boolean
+  + delete(): Boolean
+  + getDetail(): Content
+  + incrementView(): void
+  + updateHotScore(): void
+  + toggleFavorite(userId): Boolean
+  + recordHistory(userId, duration): void
+}
+
+class Banner {
+  - _id: String
+  - title: String
+  - image: String
+  - link: String
+  - ts: Number
+  --
+  + getTitle(): String
+  + getImage(): String
+}
+
+Tag "*" -- "*" Content : categorizes >
+Source "1" -- "*" Content : publishes >
+Content "*" -- "*" Banner : features >
+
+note top of Tag
+  分类标签
+  如：竞赛、讲座、招聘
+end note
+
+note top of Source
+  内容来源
+  如：学院、部门
+end note
+
+note bottom of Content
+  活动内容核心实体
+  包含完整活动信息
+  支持发布、编辑、删除
+end note
+
+note top of Banner
+  首页横幅
+  用于推广重要活动
+end note
+
+@enduml
+

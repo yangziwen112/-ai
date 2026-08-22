@@ -1,0 +1,248 @@
+/* 登录页面 */
+.page-login {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 顶部装饰 */
+.header-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400rpx;
+  pointer-events: none;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.circle-1 {
+  width: 300rpx;
+  height: 300rpx;
+  top: -100rpx;
+  right: -50rpx;
+}
+
+.circle-2 {
+  width: 200rpx;
+  height: 200rpx;
+  top: 100rpx;
+  left: -50rpx;
+}
+
+.circle-3 {
+  width: 150rpx;
+  height: 150rpx;
+  top: 50rpx;
+  right: 100rpx;
+}
+
+/* 登录卡片 */
+.login-card {
+  width: 100%;
+  max-width: 600rpx;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 32rpx;
+  padding: 60rpx 40rpx 40rpx;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+/* 标题 */
+.login-header {
+  text-align: center;
+  margin-bottom: 50rpx;
+}
+
+.app-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.app-name {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8rpx;
+}
+
+.app-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  letter-spacing: 4rpx;
+}
+
+/* 表单 */
+.login-form {
+  width: 100%;
+}
+
+.form-item {
+  margin-bottom: 32rpx;
+  position: relative;
+}
+
+.input-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.label-icon {
+  font-size: 24rpx;
+  margin-right: 8rpx;
+}
+
+.label-text {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: #f5f7fa;
+  border: 2rpx solid #e8ecf0;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #333;
+  transition: all 0.3s;
+}
+
+.form-input:focus {
+  background: #fff;
+  border-color: #667eea;
+  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 24rpx;
+  bottom: 24rpx;
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-icon {
+  font-size: 28rpx;
+  opacity: 0.6;
+}
+
+/* 身份选择 */
+.role-selector {
+  display: flex;
+  gap: 20rpx;
+}
+
+.role-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx;
+  background: #f5f7fa;
+  border: 2rpx solid #e8ecf0;
+  border-radius: 16rpx;
+  transition: all 0.3s;
+}
+
+.role-option.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  transform: translateY(-4rpx);
+  box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.3);
+}
+
+.role-icon {
+  font-size: 40rpx;
+  margin-bottom: 8rpx;
+}
+
+.role-option.active .role-icon {
+  filter: brightness(2);
+}
+
+.role-text {
+  font-size: 24rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.role-option.active .role-text {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 登录按钮 */
+.login-btn {
+  width: 100%;
+  height: 88rpx;
+  margin-top: 40rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.4);
+  transition: all 0.3s;
+}
+
+.login-btn:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+}
+
+.login-btn.disabled {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* 注册按钮 */
+.register-btn {
+  width: 100%;
+  height: 88rpx;
+  margin-top: 20rpx;
+  background: transparent;
+  color: #667eea;
+  border: 2rpx solid #667eea;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.register-btn:active {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* 忘记密码 */
+.forgot-password {
+  text-align: center;
+  padding: 30rpx 0 10rpx;
+}
+
+.forgot-text {
+  font-size: 24rpx;
+  color: #999;
+}
+

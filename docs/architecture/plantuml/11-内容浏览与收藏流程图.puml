@@ -1,0 +1,70 @@
+@startuml 内容浏览与收藏流程图
+
+start
+
+:加载内容列表\n(支持分页和过滤);
+
+:从本地缓存\n获取收藏状态;
+
+:更新UI\n显示内容卡片;
+
+:用户交互;
+
+if (用户操作?) then (查看详情)
+  :点击内容卡片;
+  :记录浏览历史\nrecordHistory();
+  :跳转详情页;
+  :显示完整内容;
+  :用户返回;
+  
+else if (收藏操作) then
+  :用户点击\n收藏按钮❤️;
+  
+  :调用云函数\nuser/favorite/toggle;
+  
+  if (已收藏?) then (是)
+    :删除收藏记录\n(removeFavorite);
+    :图标变灰色;
+  else (否)
+    :添加收藏记录\n(toggleFavorite);
+    :图标变红色;
+  endif
+  
+  :更新UI;
+  :更新本地缓存;
+  :显示Toast提示;
+  
+else if (滑动操作) then
+  :在卡片上\n左右滑动;
+  
+  if (滑动方向?) then (左滑)
+    :显示删除按钮;
+    
+    if (用户确认?) then (是)
+      :调用删除API\nuser/favorite/remove;
+      :移除该项;
+      :显示撤销选项;
+    endif
+    
+  else (右滑)
+    :隐藏操作按钮;
+  endif
+  
+else (分享操作)
+  :用户点击\n分享按钮;
+  
+  :调用微信分享接口;
+  
+  if (分享成功?) then (是)
+    :显示分享成功提示;
+  else (否)
+    :显示分享失败提示;
+  endif
+endif
+
+:返回内容列表;
+
+stop
+
+@enduml
+

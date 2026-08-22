@@ -1,0 +1,68 @@
+<view class="admin-page">
+  <view class="admin-hero">
+    <text class="hero-title">平台管理中心</text>
+    <text class="hero-desc">内容发布、自动采集与数据维护</text>
+  </view>
+
+  <view class="stats-grid">
+    <view class="stat-card"><text class="stat-value">{{stats.contents}}</text><text class="stat-label">近期资讯</text></view>
+    <view class="stat-card"><text class="stat-value">{{stats.sources}}</text><text class="stat-label">信息来源</text></view>
+    <view class="stat-card"><text class="stat-value">{{stats.tags}}</text><text class="stat-label">订阅标签</text></view>
+  </view>
+
+  <view class="admin-section">
+    <view class="section-title-row">
+      <view><text class="section-title">常用操作</text><text class="section-desc">仅管理员登录后可见</text></view>
+    </view>
+    <view class="action-grid">
+      <view class="action-card primary" bindtap="goToPublish">
+        <text class="action-icon">＋</text><text class="action-title">发布资讯</text><text class="action-desc">人工发布校内通知</text>
+      </view>
+      <view class="action-card" bindtap="toggleCrawlerPanel">
+        <text class="action-icon crawler">↻</text><text class="action-title">运行采集器</text><text class="action-desc">选择具体业务来源更新</text>
+      </view>
+    </view>
+    <view class="crawler-jobs" wx:if="{{showCrawlerJobs}}">
+      <view class="crawler-panel-heading">
+        <text class="crawler-panel-title">选择更新任务</text>
+        <text class="crawler-panel-desc">每个任务独立运行，不再一次抓取全部网站</text>
+      </view>
+      <view
+        class="crawler-job {{activeCrawlerJob === item.id ? 'running' : ''}}"
+        wx:for="{{crawlerJobs}}"
+        wx:key="id"
+        bindtap="runCrawlerJob"
+        data-group="{{item.id}}"
+        data-days="{{item.days}}"
+      >
+        <view class="job-icon">{{item.icon}}</view>
+        <view class="job-copy">
+          <text class="job-title">{{item.title}}</text>
+          <text class="job-desc">{{item.desc}}</text>
+        </view>
+        <text class="job-action">{{activeCrawlerJob === item.id ? '运行中' : '立即更新'}}</text>
+      </view>
+    </view>
+    <view class="crawler-status {{crawlerStatus.accessDenied ? 'access-denied' : ''}}" wx:if="{{crawlerStatus}}">
+      <text class="status-dot"></text><text>{{crawlerStatus.accessDenied ? '采集器鉴权失败：' : '最近运行：'}}{{crawlerStatus.lastRunText || crawlerStatus.message || '暂无记录'}}</text>
+    </view>
+  </view>
+
+  <view class="admin-section">
+    <view class="section-title-row">
+      <view><text class="section-title">资讯管理</text><text class="section-desc">长按卡片可编辑或删除</text></view>
+      <text class="refresh-link" bindtap="loadDashboard">刷新</text>
+    </view>
+    <view class="loading" wx:if="{{loading}}">正在加载管理数据…</view>
+    <block wx:else>
+      <card-item wx:for="{{contents}}" wx:key="_id" item="{{item}}" isAdmin="{{true}}" bind:edit="onEditContent" bind:delete="onDeleteContent" />
+    </block>
+  </view>
+
+  <view class="admin-section maintenance">
+    <text class="section-title">系统维护</text>
+    <text class="maintenance-desc">首次部署或数据库结构升级时使用，普通运营无需操作。</text>
+    <button class="maintenance-btn" bindtap="initCollections">检查并初始化数据表</button>
+    <button class="maintenance-btn danger" bindtap="removeDemoContent">清理演示数据与假链接</button>
+  </view>
+</view>

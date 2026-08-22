@@ -1,0 +1,4 @@
+interface:
+  display_name: "校园聚合平台工作台"
+  short_description: "构建校园聚合小程序、AI工具链与微信视频号内容处理流程"
+  default_prompt: "维护校园聚合小程序的界面、采集器、AI工具和内容发布流程。"

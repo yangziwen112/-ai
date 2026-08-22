@@ -1,0 +1,214 @@
+<view class="detail-page">
+  <!-- 加载状态 -->
+  <block wx:if="{{loading}}">
+    <view class="loading-container">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+  </block>
+
+  <!-- 错误状态 -->
+  <block wx:elif="{{error}}">
+    <view class="error-container">
+      <text class="error-icon">⚠️</text>
+      <text class="error-text">加载失败</text>
+      <text class="error-subtext">请检查网络连接后重试</text>
+      <button class="retry-btn" bindtap="loadPostDetail">
+        <text>重新加载</text>
+      </button>
+    </view>
+  </block>
+
+  <!-- 帖子内容 -->
+  <block wx:else>
+    <!-- 背景遮罩层 -->
+    <view class="mask" wx:if="{{showUserCard}}" bindtap="closeUserCard"></view>
+    
+    <!-- 用户信息卡片 -->
+    <view class="user-info-card" wx:if="{{showUserCard}}">
+      <view class="user-card-header">
+        <view class="user-avatar">{{userCardInfo.authorInitial || '用'}}</view>
+        <view class="user-info">
+          <view class="user-name-row">
+            <text class="user-name">{{userCardInfo.authorName || '用户'}}</text>
+            <text class="verified-badge">已认证</text>
+          </view>
+          <text class="user-id">ID: {{userCardInfo.shortId || userCardInfo.authorId}}</text>
+        </view>
+        <button class="close-btn" bindtap="closeUserCard">
+          <text>×</text>
+        </button>
+      </view>
+      <view class="user-stats">
+        <text class="stats-text">获得 {{userCardInfo.likes || 0}} 个点赞</text>
+      </view>
+      <view class="user-actions">
+        <button class="blacklist-btn" bindtap="blacklistUser" data-user-id="{{userCardInfo.authorId}}">
+          <text class="btn-text">拉黑</text>
+        </button>
+        <button class="message-btn" bindtap="sendMessageToAuthor" data-user-id="{{userCardInfo.authorId}}" data-user-name="{{userCardInfo.authorName}}">
+          <text class="btn-text">私信</text>
+        </button>
+      </view>
+      <view class="user-action-cancel">
+        <button class="cancel-btn" bindtap="closeUserCard">
+          <text class="cancel-text">取消</text>
+        </button>
+      </view>
+    </view>
+    
+    <view class="post-section">
+      <view class="post-header">
+        <view class="user-info">
+          <view class="avatar" bindtap="showUserActionMenu" data-user-id="{{post.authorId}}" data-user-name="{{post.authorName}}" data-likes="{{post.likes || 0}}">{{post.authorInitial || '用户'}}</view>
+          <view class="user-details">
+            <text class="username">{{post.authorName || '匿名用户'}}</text>
+            <text class="post-time">{{post.createdAtText || '刚刚'}}</text>
+          </view>
+        </view>
+        <view class="header-actions">
+          <view class="category-tag">
+            <text class="tag-text">{{post.category || '其他'}}</text>
+          </view>
+          <view class="custom-tag" wx:if="{{post.customTag}}">
+            <text class="custom-tag-text">{{post.customTag}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="post-content">
+        <text class="content-text">{{post.content}}</text>
+        <view class="post-images" wx:if="{{post.images && post.images.length > 0}}">
+          <image 
+            wx:for="{{post.images}}" 
+            wx:key="*this"
+            src="{{item}}" 
+            class="post-image"
+            mode="aspectFill"
+            bindtap="previewImage"
+            data-index="{{index}}"
+          />
+        </view>
+      </view>
+      
+      <view class="post-market-details" wx:if="{{post.marketDetails}}">
+        <text class="post-market-title">{{post.marketType === 'book' ? '二手书规格' : '闲置规格'}}</text>
+        <text>数量：{{post.marketDetails.quantity}}</text>
+        <text>新旧程度：{{post.marketDetails.condition}}</text>
+        <text>位置：{{post.marketDetails.location}}</text>
+        <text>交易方式：{{post.marketDetails.tradeMethod}}</text>
+        <text>原因：{{post.marketDetails.reason}}</text>
+      </view>
+
+      <view class="post-footer">
+        <view class="action-item {{liked ? 'liked' : ''}}" bindtap="toggleLike">
+          <text class="action-icon {{liked ? 'like-animation' : ''}}">{{liked ? '❤️' : '👍'}}</text>
+          <text class="action-text {{liked ? 'liked-text' : ''}}">{{likes}}</text>
+        </view>
+        <view class="action-item">
+          <text class="action-icon">💬</text>
+          <text class="action-text">{{post.comments || 0}}</text>
+        </view>
+        <view class="action-item">
+          <text class="action-icon">🔄</text>
+          <text class="action-text">{{post.shares || 0}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 评论区 -->
+    <view class="comments-section">
+      <view class="section-header">
+        <text class="section-title">评论</text>
+        <text class="section-count">({{comments.length}})</text>
+      </view>
+      
+      <view class="comments-list" wx:if="{{comments.length > 0}}">
+        <view wx:for="{{comments}}" wx:key="_id" class="comment-item">
+          <view class="comment-header">
+            <view class="comment-avatar" bindtap="showUserActionMenu" data-user-id="{{item.authorId}}" data-user-name="{{item.authorName}}" data-likes="{{item.likes || 0}}">{{item.authorInitial || '用'}}</view>
+            <view class="comment-info">
+              <text class="comment-username">{{item.authorName || '匿名用户'}}</text>
+              <text class="comment-time">{{item.createdAtText || '刚刚'}}</text>
+            </view>
+          </view>
+          <view class="comment-content">
+            <text>{{item.content}}</text>
+            <!-- 评论图片 -->
+            <view class="comment-images" wx:if="{{item.images && item.images.length > 0}}">
+              <image 
+                wx:for="{{item.images}}" 
+                wx:key="*this"
+                src="{{item}}" 
+                class="comment-image"
+                mode="aspectFill"
+                bindtap="previewImage"
+                data-index="{{index}}"
+              />
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="empty-comments" wx:else>
+        <text class="empty-text">暂无评论，快来抢沙发吧</text>
+      </view>
+    </view>
+
+    <!-- 评论输入 -->
+    <view class="comment-input-section" style="bottom: {{keyboardHeight}}px;">
+      <!-- 上传图片预览 -->
+      <view class="uploaded-images" wx:if="{{uploadedImages.length > 0}}">
+        <view wx:for="{{uploadedImages}}" wx:key="*this" class="uploaded-image-item">
+          <image src="{{item}}" class="uploaded-image" mode="aspectFill" />
+          <button class="remove-image-btn" bindtap="removeImage" data-index="{{index}}">
+            <text>×</text>
+          </button>
+        </view>
+      </view>
+      <input 
+        class="comment-input" 
+        placeholder="别藏着掖着啦，快说说你的看法"
+        value="{{commentContent}}"
+        bindinput="onCommentInput"
+        bindfocus="onInputFocus"
+        bindblur="onInputBlur"
+        maxlength="200"
+      />
+      <view class="input-row">
+        <view class="input-tools">
+          <button class="tool-btn" bindtap="toggleEmojiPanel">
+            <text class="tool-icon">😊</text>
+            <text class="tool-text">表情</text>
+          </button>
+          <button class="tool-btn" bindtap="chooseImage">
+            <text class="tool-icon">🖼️</text>
+            <text class="tool-text">图片</text>
+          </button>
+          <view class="tool-checkbox">
+            <checkbox value="anonymous" checked="{{anonymousComment}}" bindchange="onAnonymousChange" />
+            <text class="tool-text">分身回帖</text>
+          </view>
+        </view>
+        <button 
+          class="comment-btn" 
+          bindtap="submitComment"
+          disabled="{{commentLoading}}"
+        >
+          <text>{{commentLoading ? '发送中...' : '发送'}}</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 表情面板遮罩 -->
+    <view class="emoji-mask" wx:if="{{showEmojiPanel}}" bindtap="closeEmojiPanel"></view>
+    <!-- 表情面板 -->
+    <view class="emoji-panel" wx:if="{{showEmojiPanel}}">
+      <view class="emoji-grid">
+        <view wx:for="{{emojis}}" wx:key="*this" class="emoji-item" bindtap="selectEmoji" data-emoji="{{ item }}">
+          <text class="emoji">{{ item }}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

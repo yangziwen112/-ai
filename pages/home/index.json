@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "card-item": "../../components/card-item/index"
+  },
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 100
+} 

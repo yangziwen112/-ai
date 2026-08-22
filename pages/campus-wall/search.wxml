@@ -1,0 +1,117 @@
+<view class="search-page">
+  <!-- 顶部搜索区域 -->
+  <view class="header-section">
+    <view class="welcome-text">
+      <text class="greeting">你好，欢迎来到校园墙</text>
+      <text class="subtitle">搜索用户或帖子</text>
+    </view>
+    <view class="search-container">
+      <view class="search-box">
+        <text class="search-icon">🔍</text>
+        <input 
+          class="search-input" 
+          placeholder="搜索用户ID或帖子内容" 
+          value="{{ keyword }}" 
+          bindinput="onInputChange"
+          bindconfirm="search"
+          confirm-type="search"
+        />
+        <text class="clear-btn" wx:if="{{ keyword }}" bindtap="clearInput">✕</text>
+      </view>
+    </view>
+    <button class="cancel-btn" bindtap="cancel">取消</button>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-results">
+    <!-- 用户搜索结果 -->
+    <view wx:if="{{ users.length > 0 }}" class="section">
+      <text class="section-title">用户</text>
+      <view class="user-list">
+        <view 
+          wx:for="{{ users }}" 
+          wx:key="_id"
+          class="user-item"
+          bindtap="goToUserProfile"
+          data-user-id="{{ item._id }}"
+          data-user-name="{{ item.nickname || item.username }}"
+        >
+          <view class="user-avatar">{{ item.nickname ? item.nickname.charAt(0) : '用' }}</view>
+          <view class="user-info">
+            <text class="user-name">{{ item.nickname || item.username }}</text>
+            <text class="user-id">ID: {{ item._id }}</text>
+          </view>
+          <view class="user-actions">
+            <button class="action-btn message-btn" bindtap="sendMessage" data-user-id="{{ item._id }}" data-user-name="{{ item.nickname || item.username }}">私信</button>
+            <button class="action-btn add-btn" bindtap="sendFriendRequest" data-user-id="{{ item._id }}" data-user-name="{{ item.nickname || item.username }}">加好友</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 帖子搜索结果 -->
+    <view wx:if="{{ posts.length > 0 }}" class="section">
+      <text class="section-title">帖子</text>
+      <view class="posts-list">
+        <view 
+          wx:for="{{ posts }}" 
+          wx:key="_id"
+          class="post-item"
+          bindtap="goToPostDetail"
+          data-post-id="{{ item._id }}"
+        >
+          <view class="post-header">
+            <view class="user-info">
+              <view class="avatar">{{ item.authorInitial ? item.authorInitial : '用户' }}</view>
+              <view class="user-details">
+                <text class="username">{{ item.authorName || '匿名用户' }}</text>
+                <text class="post-time">{{ item.createdAtText || '刚刚' }}</text>
+              </view>
+            </view>
+            <view class="category-tag">
+              <text class="tag-text">{{ item.category || '其他' }}</text>
+            </view>
+          </view>
+          
+          <view class="post-content">
+            <text class="content-text">{{ item.content }}</text>
+            <view class="post-images" wx:if="{{ item.images && item.images.length > 0 }}">
+              <image 
+                wx:for="{{ item.images }}" 
+                wx:key="*this"
+                src="{{ item }}" 
+                class="post-image"
+                mode="aspectFill"
+              />
+            </view>
+          </view>
+          
+          <view class="post-footer">
+            <view class="action-item">
+              <text class="action-icon">👍</text>
+              <text class="action-text">{{ item.likes || 0 }}</text>
+            </view>
+            <view class="action-item">
+              <text class="action-icon">💬</text>
+              <text class="action-text">{{ item.comments || 0 }}</text>
+            </view>
+            <view class="action-item">
+              <text class="action-icon">🔄</text>
+              <text class="action-text">{{ item.shares || 0 }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 无结果 -->
+    <view wx:if="{{ !loading && users.length === 0 && posts.length === 0 && keyword }}" class="empty-state">
+      <text class="empty-text">没有找到相关内容</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view wx:if="{{ loading }}" class="loading-container">
+      <text class="loading-text">搜索中...</text>
+    </view>
+  </view>
+</view>

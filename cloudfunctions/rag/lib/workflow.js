@@ -1,0 +1,113 @@
+const crypto = require('crypto')
+const { StateGraph, START, END } = require('@langchain/langgraph')
+const { RunnableLambda } = require('@langchain/core/runnables')
+const { WorkflowState } = require('./state')
+const { situationAgent } = require('./agents/situation')
+const { intentAgent } = require('./agents/intent')
+const { createRetrievalAgent } = require('./agents/retrieval')
+const { answerAgent } = require('./agents/answer')
+const { reviewerAgent } = require('./agents/reviewer')
+const { createRepository } = require('./services/repository')
+const { runTools } = require('./tools')
+
+function createWorkflow(db) {
+  const retrievalAgent = createRetrievalAgent(createRepository(db))
+  const toolAgent = RunnableLambda.from(async state => {
+    const intent = state.intent || {}
+    const toolResults = await runTools({ db, query: state.query, intent })
+    const toolEvidence = toolResults
+      .filter(item => item.tool === 'public_database')
+      .flatMap(item => item.records || [])
+      .map(item => ({
+        id: item.id,
+        title: item.title,
+        summary: item.summary,
+        description: item.summary,
+        category: item.category,
+        sourceName: item.sourceName,
+        sourceUrl: item.sourceUrl,
+        publishTime: item.publishTime,
+        startTime: item.startTime,
+        deadline: item.deadline,
+        location: item.location,
+        isOfficial: true
+      }))
+    const webLinks = toolResults
+      .filter(item => item.tool === 'web_search')
+      .flatMap(item => item.results || [])
+      .filter(item => item.url)
+      .slice(0, 6)
+      .map(item => ({ type: 'web', title: item.title, summary: item.snippet || '', url: item.url }))
+    const contentLinks = toolEvidence.slice(0, 8).map(item => ({ type: 'content', id: item.id, title: item.title, summary: item.summary, sourceName: item.sourceName, sourceUrl: item.sourceUrl }))
+    return {
+      toolResults,
+      evidence: toolEvidence.length ? toolEvidence : (state.evidence || []),
+      links: contentLinks.concat(webLinks).slice(0, 8),
+      tools: intent.tools || [],
+      trace: [...state.trace, { stage: 'A', agent: 'tool_orchestrator', tools: intent.tools || [], resultCount: toolResults.length }]
+    }
+  })
+  const prepareRetry = RunnableLambda.from(async state => ({
+    retryCount: (state.retryCount || 0) + 1,
+    trace: [...state.trace, { stage: 'R', agent: 'reflection', action: 'revise_once' }]
+  }))
+  const fallbackAgent = RunnableLambda.from(async state => ({
+    answer: state.evidence?.length
+      ? `我找到了相关校园资讯，但暂时无法可靠整理完整结论。你可以先查看下方的来源卡片，涉及时间和政策请以原文为准。`
+      : '暂时没有检索到足够可靠的信息。我不会猜测具体日期或政策，你可以换个关键词，或稍后查看首页的最新校园资讯。',
+    trace: [...state.trace, { stage: 'R', agent: 'fallback', status: 'safe_degrade' }]
+  }))
+
+  return new StateGraph(WorkflowState)
+    .addNode('situation_agent', situationAgent)
+    .addNode('intent_agent', intentAgent)
+    .addNode('retrieval_agent', retrievalAgent)
+    .addNode('tool_agent', toolAgent)
+    .addNode('answer_agent', answerAgent)
+    .addNode('review_agent', reviewerAgent)
+    .addNode('prepare_retry', prepareRetry)
+    .addNode('fallback', fallbackAgent)
+    .addEdge(START, 'situation_agent')
+    .addEdge('situation_agent', 'intent_agent')
+    .addConditionalEdges('intent_agent', state => (state.intent.tools || []).length ? 'tools' : (['campus_info', 'upcoming'].includes(state.intent.route) ? 'retrieve' : 'answer'), {
+      tools: 'tool_agent', retrieve: 'retrieval_agent', answer: 'answer_agent'
+    })
+    .addConditionalEdges('tool_agent', state => ['campus_info', 'upcoming'].includes(state.intent.route) ? 'retrieve' : 'answer', { retrieve: 'retrieval_agent', answer: 'answer_agent' })
+    .addEdge('retrieval_agent', 'answer_agent')
+    .addEdge('answer_agent', 'review_agent')
+    .addConditionalEdges('review_agent', state => {
+      if (state.review.approved) return 'done'
+      return (state.retryCount || 0) < 1 ? 'retry' : 'fallback'
+    }, { done: END, retry: 'prepare_retry', fallback: 'fallback' })
+    .addEdge('prepare_retry', 'answer_agent')
+    .addEdge('fallback', END)
+    .compile()
+}
+
+async function runWorkflow(db, input) {
+  const traceId = input.traceId || crypto.randomBytes(8).toString('hex')
+  const app = createWorkflow(db)
+  const result = await app.invoke({ ...input, traceId, retryCount: 0, trace: [] })
+  return {
+    answer: result.answer || result.draft,
+    links: result.links || [],
+    meta: {
+      workflow: 'STAR',
+      intent: result.intent?.intent || '',
+      route: result.intent?.route || '',
+      grounded: (result.evidence || []).length > 0,
+      multimodal: Array.isArray(input.imageUrls) && input.imageUrls.length > 0,
+      imageCount: Array.isArray(input.imageUrls) ? input.imageUrls.length : 0,
+      evidenceCount: (result.evidence || []).length,
+      tools: result.tools || [],
+      toolResultCount: (result.toolResults || []).length,
+      reviewStatus: result.review?.approved ? 'approved' : 'fallback',
+      reviewScore: result.review?.score || 0,
+      retryCount: result.retryCount || 0,
+      traceId,
+      stages: (result.trace || []).map(item => ({ ...item }))
+    }
+  }
+}
+
+module.exports = { createWorkflow, runWorkflow }

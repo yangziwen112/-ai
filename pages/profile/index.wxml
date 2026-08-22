@@ -1,0 +1,41 @@
+<view class="page-profile">
+  <view class="profile-header">
+    <image class="avatar" src="{{user.avatarUrl || 'https://res.wx.qq.com/a/wx_fed/assets/res/OTE0YTAw.png'}}" mode="aspectFill"/>
+    <view class="user-info">
+      <view class="nickname">{{user.nickname || '未登录'}}</view>
+      <view class="sub">
+        <text wx:if="{{user.username}}">账号：{{user.username}}</text>
+        <text wx:if="{{user.role}}"> | {{user.role === 'admin' ? '管理员' : '学生'}}</text>
+      </view>
+    </view>
+    <button class="login-btn" wx:if="{{!user.userId}}" size="mini" bindtap="onGoLogin">去登录</button>
+  </view>
+
+  <view class="menu-card">
+    <view class="cell" bindtap="goToProtected" data-url="/pages/subscription/index" data-label="我的订阅">
+      <text class="cell-text">我的订阅</text>
+      <text class="cell-arrow">›</text>
+    </view>
+    <view class="cell" bindtap="goToProtected" data-url="/pages/favorites/index" data-label="我的收藏">
+      <text class="cell-text">我的收藏</text>
+      <text class="cell-arrow">›</text>
+    </view>
+    <view class="cell" bindtap="goToProtected" data-url="/pages/history/index" data-label="浏览历史">
+      <text class="cell-text">浏览历史</text>
+      <text class="cell-arrow">›</text>
+    </view>
+    <view class="cell admin-cell" wx:if="{{user.role === 'admin'}}" bindtap="goToAdmin">
+      <text class="cell-text">平台管理中心</text>
+      <text class="admin-badge">管理员</text>
+      <text class="cell-arrow">›</text>
+    </view>
+    <view class="cell" bindtap="goToSettings">
+      <text class="cell-text">设置</text>
+      <text class="cell-arrow">›</text>
+    </view>
+    <view class="cell" wx:if="{{user.userId}}" bindtap="onLogout">
+      <text class="cell-text logout-text">退出登录</text>
+      <text class="cell-arrow">›</text>
+    </view>
+  </view>
+</view>

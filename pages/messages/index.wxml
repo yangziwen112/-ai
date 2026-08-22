@@ -1,0 +1,44 @@
+<view class="messages-page">
+  <view class="guest-card" wx:if="{{!isLoggedIn}}">
+    <view class="guest-icon">信</view>
+    <text class="guest-title">登录后查看个人消息</text>
+    <text class="guest-desc">私信、好友和消息记录会与你的账号同步。公共资讯与校园墙无需登录即可浏览。</text>
+    <button class="login-action" bindtap="goToLogin">登录 / 注册</button>
+    <view class="assistant-link" bindtap="goToAssistant">先体验 AI 助手（游客 3 次）›</view>
+  </view>
+
+  <block wx:else>
+    <view class="page-heading">
+      <text class="heading-title">最近联系</text>
+      <text class="heading-desc">与校园墙同学的私信会显示在这里</text>
+    </view>
+
+    <view class="loading" wx:if="{{loading}}">正在加载消息…</view>
+    <view class="empty-state" wx:elif="{{!messages.length}}">
+      <view class="empty-icon">聊</view>
+      <text class="empty-title">还没有私信</text>
+      <text class="empty-desc">可在校园墙帖子详情或用户搜索结果中发起私信</text>
+    </view>
+    <view class="message-list" wx:else>
+      <view
+        class="message-item"
+        wx:for="{{messages}}"
+        wx:key="userId"
+        bindtap="navigateToChat"
+        data-user-id="{{item.userId}}"
+        data-user-name="{{item.userName}}"
+      >
+        <view class="avatar">{{item.userName ? item.userName.charAt(0) : '同'}}</view>
+        <view class="message-main">
+          <view class="message-top">
+            <text class="user-name">{{item.userName || '同学'}}</text>
+            <text class="message-time">{{item.lastMessageTimeText || item.lastMessageTime}}</text>
+          </view>
+          <text class="last-message">{{item.lastMessage || '点击继续聊天'}}</text>
+        </view>
+        <view class="unread" wx:if="{{item.unreadCount}}">{{item.unreadCount}}</view>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+  </block>
+</view>

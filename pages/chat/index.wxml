@@ -1,0 +1,164 @@
+<view class="chat-container">
+  <!-- 顶部导航 -->
+  <view class="header">
+    <button class="history-btn" bindtap="toggleConversationList">☰</button>
+    <text class="header-title">奈雪 AI助手</text>
+    <button class="new-chat-btn" bindtap="newConversation" disabled="{{isLoading}}">＋ 新对话</button>
+    <view class="header-status">
+      <view class="status-dot-container">
+        <view class="status-dot {{isLoggedIn ? 'online' : 'offline'}}"></view>
+        <view class="status-dot-ripple {{isLoggedIn ? 'online' : 'offline'}}"></view>
+      </view>
+      <text class="status-text">{{isLoggedIn ? '已登录' : '游客模式'}}</text>
+    </view>
+  </view>
+
+  <view class="conversation-panel" wx:if="{{showConversationList}}">
+    <view class="conversation-panel-head">
+      <text>历史对话</text>
+      <text class="conversation-close" bindtap="toggleConversationList">关闭</text>
+    </view>
+    <scroll-view scroll-y class="conversation-list">
+      <view class="conversation-empty" wx:if="{{!conversations.length}}">暂无历史对话</view>
+      <view
+        wx:for="{{conversations}}"
+        wx:key="conversationId"
+        class="conversation-item {{item.conversationId === conversationId ? 'active' : ''}}"
+        bindtap="selectConversation"
+        data-conversation-id="{{item.conversationId}}"
+        data-conversation-title="{{item.title}}"
+      >
+        <text class="conversation-title">{{item.title}}</text>
+        <text class="conversation-count">{{item.messageCount}} 条消息</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <scroll-view scroll-y class="chat-area" scroll-into-view="{{scrollToView}}" bindtap="onChatAreaTap">
+    <block wx:for="{{messages}}" wx:key="index">
+      <view class="msg-item {{item.role}}" id="msg-{{index}}">
+        <!-- AI头像 -->
+        <view class="msg-avatar" wx:if="{{item.role === 'assistant'}}">
+          <image src="../../images/robot.png" mode="aspectFill"></image>
+          <view class="avatar-glow" wx:if="{{item.showCompanionAnimation}}"></view>
+          <view class="cat-companion" wx:if="{{item.showCompanionAnimation}}" aria-hidden="true">
+            <view class="cat-tail"></view>
+            <view class="cat-body"></view>
+            <view class="cat-head">
+              <view class="cat-ear left"></view>
+              <view class="cat-ear right"></view>
+              <view class="cat-face"><text>•ᴗ•</text></view>
+            </view>
+            <view class="cat-paw left"></view>
+            <view class="cat-paw right"></view>
+          </view>
+        </view>
+        
+        <!-- 气泡容器 -->
+        <view class="msg-bubble-wrapper {{item.role}}">
+          <view class="msg-bubble {{item.role}}">
+            <view class="message-images" wx:if="{{item.images && item.images.length}}">
+              <image
+                wx:for="{{item.images}}"
+                wx:key="*this"
+                src="{{item}}"
+                class="message-image"
+                mode="aspectFill"
+              />
+            </view>
+            <!-- 文本内容 -->
+            <block wx:for="{{item.contentParts}}" wx:key="idx" wx:for-item="part">
+              <text wx:if="{{part.type === 'text'}}" class="msg-text">{{part.text}}</text>
+              <text wx:elif="{{part.type === 'highlight'}}" class="msg-highlight" bindtap="onTapContentLink" data-link="{{part.link}}">{{part.text}}</text>
+            </block>
+            <text wx:if="{{!item.contentParts}}" class="msg-text">{{item.content}}</text>
+            
+            <!-- 可点击的内容链接卡片 -->
+            <view wx:if="{{item.links && item.links.length > 0}}" class="msg-links">
+              <view class="links-title">相关内容</view>
+              <view 
+                wx:for="{{item.links}}" 
+                wx:key="idx" 
+                wx:for-item="link"
+                class="link-card {{link.type}}"
+                bindtap="onTapLink"
+                data-link="{{link}}"
+              >
+                <view class="link-icon">{{link.type === 'content' ? '📋' : '🌐'}}</view>
+                <view class="link-info">
+                  <text class="link-title">{{link.title}}</text>
+                  <text class="link-desc">{{link.summary || link.snippet || ''}}</text>
+                </view>
+                <text class="link-arrow">›</text>
+              </view>
+            </view>
+          </view>
+          
+          <!-- AI气泡浮动表情粒子 -->
+          <block wx:if="{{item.role === 'assistant' && item.bubbleEmojis}}">
+            <view 
+              wx:for="{{item.bubbleEmojis}}" 
+              wx:key="idx" 
+              wx:for-item="emoji"
+              class="bubble-emoji"
+              style="animation-delay: {{emoji.delay}}s; left: {{emoji.left}}%; top: {{emoji.top}}%;"
+            >
+              <text>{{emoji.char}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 打字动画 -->
+    <view class="loading" wx:if="{{isLoading}}">
+      <view class="typing-indicator">
+        <view class="typing-dot"></view>
+        <view class="typing-dot"></view>
+        <view class="typing-dot"></view>
+      </view>
+      <text class="typing-text">正在处理...</text>
+      <text class="workflow-stage">{{workflowStage}}</text>
+    </view>
+  </scroll-view>
+  
+  <view class="input-area">
+    <button class="image-btn" bindtap="chooseImage" disabled="{{isLoading || uploadingImages}}">
+      <text class="image-icon">▧</text>
+    </button>
+    <button class="emoji-btn" bindtap="toggleEmojiPanel">
+      <text class="emoji-icon">😊</text>
+    </button>
+    <input 
+      bindinput="onQuestionInput" 
+      value="{{question}}" 
+      placeholder="{{isLoggedIn ? '问我任何问题...' : '游客可体验3次对话'}}" 
+      class="input"
+      confirm-type="send"
+      bindconfirm="askQuestion"
+    />
+    <button 
+      bindtap="askQuestion" 
+      disabled="{{isLoading}}" 
+      class="send-btn"
+    >
+      发送
+    </button>
+  </view>
+
+  <view class="attachment-strip" wx:if="{{imageAttachments.length}}">
+    <view class="attachment-item" wx:for="{{imageAttachments}}" wx:key="fileID">
+      <image src="{{item.tempUrl}}" mode="aspectFill" class="attachment-image" />
+      <text class="attachment-remove" bindtap="removeChatImage" data-index="{{index}}">×</text>
+    </view>
+  </view>
+
+  <!-- 表情面板 -->
+  <view class="emoji-panel" wx:if="{{showEmojiPanel}}">
+    <view class="emoji-grid">
+      <view wx:for="{{emojis}}" wx:key="*this" class="emoji-item" bindtap="selectEmoji" data-emoji="{{ item }}">
+        <text class="emoji">{{ item }}</text>
+      </view>
+    </view>
+  </view>
+</view>

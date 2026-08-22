@@ -1,0 +1,177 @@
+<view class="publish-page">
+  <!-- 顶部导航 -->
+  <view class="header">
+    <view class="header-left"></view>
+    <text class="header-title">发布帖子</text>
+    <view class="header-right">
+      <text class="header-action">...</text>
+    </view>
+  </view>
+
+  <!-- 内容输入 -->
+  <view class="content-section">
+    <textarea 
+      class="content-input" 
+      placeholder="{{contentPlaceholder}}"
+      value="{{content}}"
+      bindinput="onContentChange"
+      maxlength="500"
+      auto-height
+    />
+    <text class="content-count">{{content.length}}/500</text>
+  </view>
+
+  <!-- 图片选择 -->
+  <view class="images-section">
+    <view class="section-title">
+      <text>图片</text>
+      <text class="image-count">{{images.length}}/{{maxImages}}</text>
+    </view>
+    <text class="market-image-tip" wx:if="{{category === 'market'}}">请上传清晰实物图，不使用网络宣传图；建议包含正面、细节和瑕疵。</text>
+    <view class="image-grid">
+      <block wx:for="{{images}}" wx:key="*this">
+        <view class="image-item">
+          <image 
+            src="{{item}}" 
+            class="image" 
+            mode="aspectFill"
+            bindtap="previewImage"
+            data-index="{{index}}"
+          />
+          <view class="remove-btn" bindtap="removeImage" data-index="{{index}}">
+            <text>×</text>
+          </view>
+        </view>
+      </block>
+      <view class="add-image-btn" bindtap="chooseImage" wx:if="{{images.length < maxImages}}">
+        <text class="add-icon">+</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类与标签 -->
+  <view class="category-tag-section">
+    <text class="section-title">分类与标签</text>
+    
+    <!-- 热门标签 -->
+    <view class="tag-grid">
+      <view 
+        class="tag-item market-tag {{category === 'market' ? 'active' : ''}}"
+        bindtap="onCategoryChange"
+        data-category="market"
+      >
+        <text class="tag-text">#二手闲置</text>
+      </view>
+      <view class="tag-item book-tag {{category === 'market' && marketType === 'book' ? 'active' : ''}}" bindtap="onMarketTypeChange" data-type="book">
+        <text class="tag-text">#二手书</text>
+      </view>
+      <view 
+        class="tag-item {{category === 'custom' ? 'active' : ''}}"
+        bindtap="onCategoryChange"
+        data-category="custom"
+      >
+        <text class="tag-text">#自定义</text>
+      </view>
+      <view 
+        class="tag-item {{category === 'help' ? 'active' : ''}}"
+        bindtap="onCategoryChange"
+        data-category="help"
+      >
+        <text class="tag-text">#求助互助</text>
+      </view>
+      <view 
+        class="tag-item {{category === 'share' ? 'active' : ''}}"
+        bindtap="onCategoryChange"
+        data-category="share"
+      >
+        <text class="tag-text">#日常分享</text>
+      </view>
+      <view 
+        class="tag-item {{category === 'activity' ? 'active' : ''}}"
+        bindtap="onCategoryChange"
+        data-category="activity"
+      >
+        <text class="tag-text">#活动约伴</text>
+      </view>
+      <view 
+        class="tag-item {{category === 'question' ? 'active' : ''}}"
+        bindtap="onCategoryChange"
+        data-category="question"
+      >
+        <text class="tag-text">#问答交流</text>
+      </view>
+      <view 
+        class="tag-item {{category === 'other' ? 'active' : ''}}"
+        bindtap="onCategoryChange"
+        data-category="other"
+      >
+        <text class="tag-text">#其他校园</text>
+      </view>
+    </view>
+
+    <view class="market-format" wx:if="{{category === 'market'}}">
+      <text class="market-format-title">推荐发布格式</text>
+      <text class="market-format-line">物品：教材 / 耳机 / 自行车等</text>
+      <text class="market-format-line">状态：几成新、是否有瑕疵</text>
+      <text class="market-format-line">价格：期望价格，可否小刀</text>
+      <text class="market-format-line">交易：校区和可交易时间</text>
+    </view>
+
+    <view class="market-details" wx:if="{{category === 'market'}}">
+      <text class="market-details-title">{{marketType === 'book' ? '二手书' : '二手闲置'}}必填信息</text>
+      <view class="market-field"><text class="market-field-label">数量</text><input placeholder="例如：1本、3件" value="{{marketDetails.quantity}}" data-field="quantity" bindinput="onMarketDetailChange" /></view>
+      <view class="market-field"><text class="market-field-label">新旧程度</text><input placeholder="例如：九成新，有少量笔记" value="{{marketDetails.condition}}" data-field="condition" bindinput="onMarketDetailChange" /></view>
+      <view class="market-field"><text class="market-field-label">位置</text><input placeholder="例如：海淀校区图书馆门口" value="{{marketDetails.location}}" data-field="location" bindinput="onMarketDetailChange" /></view>
+      <view class="market-field"><text class="market-field-label">交易方式</text><input placeholder="例如：当面交易/自提/邮寄" value="{{marketDetails.tradeMethod}}" data-field="tradeMethod" bindinput="onMarketDetailChange" /></view>
+      <view class="market-field"><text class="market-field-label">原因</text><input placeholder="例如：毕业闲置、教材换新版" value="{{marketDetails.reason}}" data-field="reason" bindinput="onMarketDetailChange" /></view>
+    </view>
+    
+    <!-- 自定义标签输入 -->
+    <view class="custom-tag-input" wx:if="{{category === 'custom'}}">
+      <input 
+        class="tag-input" 
+        placeholder="输入5-10个汉字的标签" 
+        value="{{customTag}}" 
+        bindinput="onCustomTagChange"
+        maxlength="10"
+      />
+      <text class="tag-count">{{customTag.length}}/10</text>
+    </view>
+    
+    <!-- 发布须知 -->
+    <view class="publish-notice">
+      <text class="notice-text">严禁发布代课，代跑，代刷，兼职家教，色情，男女对立，网暴他人等内容，违者封号</text>
+    </view>
+  </view>
+
+  <!-- 匿名设置 -->
+  <view class="anonymous-section">
+    <view class="anonymous-info">
+      <text class="anonymous-label">匿名发布</text>
+      <text class="anonymous-desc">开启后将隐藏你的个人信息</text>
+    </view>
+    <switch 
+      class="anonymous-switch" 
+      checked="{{anonymous}}"
+      bindchange="onAnonymousChange"
+    />
+  </view>
+
+  <!-- 按钮组 -->
+  <view class="form-actions">
+    <button
+      class="btn btn-secondary"
+      bindtap="saveDraft"
+    >
+      存草稿
+    </button>
+    <button
+      class="btn btn-primary {{loading ? 'disabled' : ''}}"
+      bindtap="publishPost"
+      disabled="{{loading}}"
+    >
+      {{loading ? '发布中...' : '发布'}}
+    </button>
+  </view>
+</view>

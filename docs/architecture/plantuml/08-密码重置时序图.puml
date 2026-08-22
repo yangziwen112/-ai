@@ -1,0 +1,72 @@
+@startuml 密码重置时序图
+
+actor 用户 as User
+participant "重置密码页面\n(reset-password)" as UI
+participant "认证工具\n(auth.js)" as Auth
+participant "请求工具\n(request.js)" as Request
+participant "云函数\n(api)" as Cloud
+database "云数据库\n(users)" as CloudDB
+
+User -> UI: 输入账号\n身份证后4位\n新密码
+activate UI
+
+UI -> Auth: 验证输入\nvalidateResetForm()
+activate Auth
+
+alt 输入验证失败
+  Auth --> UI: 返回验证错误
+  UI --> User: 显示错误提示
+  deactivate Auth
+  deactivate UI
+else 输入验证成功
+  Auth --> UI: 返回验证通过
+  deactivate Auth
+  
+  UI -> Request: callApi('auth/resetPassword',\n{username, idCardLast4, newPassword})
+  activate Request
+  
+  Request -> Cloud: 调用云函数
+  activate Cloud
+  
+  Cloud -> CloudDB: 查询用户\n(username)
+  activate CloudDB
+  CloudDB --> Cloud: 返回用户数据
+  deactivate CloudDB
+  
+  alt 用户不存在
+    Cloud --> Request: 返回{error: 'user_not_found'}
+    Request --> UI: 返回错误
+    UI --> User: 显示"用户不存在"
+    deactivate Request
+    
+  else 用户存在
+    Cloud -> Cloud: 验证\nidCardLast4
+    
+    alt 身份验证失败
+      Cloud --> Request: 返回{error: 'wrong_id_card'}
+      Request --> UI: 返回错误
+      UI --> User: 显示"身份证信息错误"
+      deactivate Request
+      
+    else 身份验证成功
+      Cloud -> CloudDB: 更新password字段
+      activate CloudDB
+      CloudDB --> Cloud: 返回成功
+      deactivate CloudDB
+      
+      Cloud --> Request: 返回{ok: true}
+      deactivate Cloud
+      
+      Request --> UI: 返回成功
+      deactivate Request
+      
+      UI --> User: 显示"密码重置成功"
+      UI --> User: 跳转登录页面
+    end
+  end
+end
+
+deactivate UI
+
+@enduml
+

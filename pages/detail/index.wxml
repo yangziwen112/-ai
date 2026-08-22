@@ -1,0 +1,111 @@
+<view class="detail-page">
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-ring"></view>
+    <text>正在加载资讯</text>
+  </view>
+
+  <view class="error-state" wx:elif="{{error}}">
+    <view class="error-mark">!</view>
+    <text class="error-title">这条资讯暂时无法打开</text>
+    <text class="error-desc">内容可能已更新或网络连接不稳定</text>
+    <view class="error-actions">
+      <button class="plain-btn" bindtap="goHome">返回首页</button>
+      <button class="primary-btn" bindtap="loadDetail">重新加载</button>
+    </view>
+  </view>
+
+  <block wx:else>
+    <image
+      class="hero-image"
+      src="{{detail.posterUrl || detail.coverUrl}}"
+      mode="aspectFill"
+      wx:if="{{detail.posterUrl || detail.coverUrl}}"
+    />
+
+    <view class="article">
+      <view class="article-kicker">
+        <text class="category category-{{detail.category}}">{{detail.categoryText || '校园资讯'}}</text>
+        <text class="official-badge" wx:if="{{detail.isOfficial}}">权威来源</text>
+        <text class="ai-badge" wx:if="{{detail.aiProcessed}}">AI整理</text>
+        <text class="structured-badge" wx:if="{{detail.summaryMode === 'structured-rule-v1'}}">要点整理</text>
+      </view>
+
+      <text class="article-title">{{detail.title}}</text>
+
+      <view class="article-meta">
+        <view class="source-avatar">{{detail.sourceInitial || '校'}}</view>
+        <view class="source-info">
+          <text class="source-name">{{detail.sourceName || detail.source || '校园信息平台'}}</text>
+          <text class="publish-time">{{detail.publishTimeText || '近期发布'}} · {{detail.campusText || '全校'}}</text>
+        </view>
+      </view>
+
+      <view class="summary-box" wx:if="{{detail.summary}}">
+        <text class="summary-label">内容摘要</text>
+        <text class="summary-text">{{detail.summary}}</text>
+      </view>
+
+      <view class="key-info" wx:if="{{detail.timeText || detail.location || detail.deadlineText}}">
+        <view class="key-row" wx:if="{{detail.timeText}}">
+          <text class="key-label">时间</text>
+          <text class="key-value">{{detail.timeText}}</text>
+        </view>
+        <view class="key-row" wx:if="{{detail.deadlineText}}">
+          <text class="key-label">截止</text>
+          <text class="key-value deadline">{{detail.deadlineText}}</text>
+        </view>
+        <view class="key-row" wx:if="{{detail.location}}">
+          <text class="key-label">地点</text>
+          <text class="key-value">{{detail.location}}</text>
+        </view>
+      </view>
+
+      <view class="important-panel" wx:if="{{detail.importantNotices && detail.importantNotices.length}}">
+        <text class="important-title">同学需要注意</text>
+        <text class="important-item" wx:for="{{detail.importantNotices}}" wx:key="*this">• {{item}}</text>
+      </view>
+
+      <view class="article-body" wx:if="{{detail.summaryMode !== 'structured-rule-v1' && detail.bodyRichText}}">
+        <rich-text nodes="{{detail.bodyRichText}}"></rich-text>
+      </view>
+      <text class="article-body text-body" wx:elif="{{detail.summaryMode !== 'structured-rule-v1' && detail.description}}">{{detail.description}}</text>
+      <text class="compact-body" wx:else>平台已将原文整理为上方要点。报名入口、附件、名单及最终安排请点击下方“查看信息原文”核对。</text>
+
+      <view class="image-grid" wx:if="{{detail.images && detail.images.length}}">
+        <image
+          wx:for="{{detail.images}}"
+          wx:key="*this"
+          src="{{item}}"
+          class="detail-image"
+          mode="widthFix"
+          data-url="{{item}}"
+          bindtap="onPreviewImage"
+        />
+      </view>
+
+      <view class="tag-list" wx:if="{{detail.tags && detail.tags.length}}">
+        <text class="tag" wx:for="{{detail.tags}}" wx:key="*this"># {{item}}</text>
+      </view>
+
+      <view class="source-card" wx:if="{{detail.sourceUrl || detail.linkUrl}}" bindtap="onCopySource">
+        <view class="source-card-main">
+          <text class="source-card-title">查看信息原文</text>
+          <text class="source-card-desc">来源：{{detail.sourceName || detail.source || '外部网站'}}</text>
+        </view>
+        <text class="source-card-action">复制链接 ›</text>
+      </view>
+
+      <view class="disclaimer" wx:if="{{detail.aiProcessed || detail.ingestType === 'crawler'}}">
+        本文经过自动抓取与结构化整理，关键信息请以来源网站原文为准。
+      </view>
+    </view>
+
+    <view class="bottom-bar">
+      <button class="favorite-btn {{detail.favored ? 'active' : ''}}" bindtap="onToggleFavorite">
+        <text class="action-icon">{{detail.favored ? '★' : '☆'}}</text>
+        <text>{{detail.favored ? '已收藏' : '收藏'}}</text>
+      </button>
+      <button class="share-btn" open-type="share">分享给同学</button>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,90 @@
+@startuml 核心表关系简化图
+
+!define TABLE(x) class x << (T,#FFAAAA) >>
+!define PRIMARY_KEY(x) <b>x</b>
+!define FOREIGN_KEY(x) <i>x</i>
+
+TABLE(User) {
+  PRIMARY_KEY(_id)
+  username
+  password
+  role
+  nickname
+  createdAt
+}
+
+TABLE(Subscription) {
+  PRIMARY_KEY(_id)
+  FOREIGN_KEY(userId)
+  tagIds[]
+  sourceIds[]
+  updatedAt
+}
+
+TABLE(Tag) {
+  PRIMARY_KEY(_id)
+  name
+  icon
+  description
+}
+
+TABLE(Source) {
+  PRIMARY_KEY(_id)
+  name
+  icon
+  description
+}
+
+TABLE(Content) {
+  PRIMARY_KEY(_id)
+  title
+  summary
+  description
+  tags[]
+  FOREIGN_KEY(sourceId)
+  FOREIGN_KEY(publishedBy)
+  status
+  publishTime
+  viewCount
+  hotScore
+}
+
+TABLE(Favorite) {
+  PRIMARY_KEY(_id)
+  FOREIGN_KEY(userId)
+  FOREIGN_KEY(contentId)
+  ts
+}
+
+TABLE(History) {
+  PRIMARY_KEY(_id)
+  FOREIGN_KEY(userId)
+  FOREIGN_KEY(contentId)
+  ts
+  duration
+}
+
+TABLE(Banner) {
+  PRIMARY_KEY(_id)
+  title
+  image
+  link
+  ts
+}
+
+User "1" -- "1" Subscription : owns
+User "1" -- "*" Favorite : creates
+User "1" -- "*" History : creates
+User "1" -- "*" Content : publishes (admin)
+
+Subscription "*" -- "*" Tag : subscribes to
+Subscription "*" -- "*" Source : subscribes to
+
+Source "1" -- "*" Content : publishes
+Tag "*" -- "*" Content : categorizes
+
+Content "1" -- "*" Favorite : is favorited by
+Content "1" -- "*" History : is viewed by
+
+@enduml
+

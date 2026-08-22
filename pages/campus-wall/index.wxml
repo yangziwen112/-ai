@@ -1,0 +1,166 @@
+<view class="campus-feed">
+  <view class="feed-header">
+    <view class="heading-row">
+      <view>
+        <text class="feed-title">校园动态</text>
+        <text class="feed-subtitle">权威资讯与校园交流实时汇总</text>
+      </view>
+      <text class="updated-at">{{lastUpdatedText}}</text>
+    </view>
+
+    <view class="search-box">
+      <text class="search-icon">⌕</text>
+      <input
+        class="search-input"
+        placeholder="搜索通知、活动或校园分享"
+        value="{{keyword}}"
+        bindinput="onInputChange"
+        bindconfirm="onSearch"
+        confirm-type="search"
+      />
+      <text class="clear-button" wx:if="{{keyword}}" bindtap="clearInput">×</text>
+      <view class="search-button" bindtap="onSearch">搜索</view>
+    </view>
+  </view>
+
+  <scroll-view scroll-x class="category-scroll" enable-flex>
+    <view
+      wx:for="{{categories}}"
+      wx:key="id"
+      class="category-tab {{selectedCategory === item.id ? 'active' : ''}}"
+      bindtap="onCategoryChange"
+      data-category="{{item.id}}"
+    >{{item.name}}</view>
+  </scroll-view>
+
+  <view class="market-entry" wx:if="{{selectedCategory === 'all' || selectedCategory === 'market'}}">
+    <view class="market-entry-copy">
+      <text class="market-entry-title">校园二手闲置</text>
+      <text class="market-entry-desc">教材、数码、生活用品，上传实物图和简要说明即可发布</text>
+    </view>
+    <view class="market-entry-actions">
+      <button class="market-entry-button" bindtap="goToPublish" data-category="book">发布二手书</button>
+      <button class="market-entry-button secondary" bindtap="goToPublish" data-category="market">发布其他闲置</button>
+    </view>
+  </view>
+
+  <view class="feed-body">
+    <view class="skeleton-list" wx:if="{{loading && !feedItems.length}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="skeleton-line short"></view>
+        <view class="skeleton-line title"></view>
+        <view class="skeleton-line"></view>
+      </view>
+    </view>
+
+    <view class="feed-list" wx:elif="{{feedItems.length}}">
+      <view
+        wx:for="{{feedItems}}"
+        wx:key="feedKey"
+        class="feed-card {{item.itemType}} {{item.category === 'market' ? 'market-card' : ''}}"
+        bindtap="openFeedItem"
+        data-type="{{item.itemType}}"
+        data-id="{{item.itemType === 'official' ? item.contentId : item.postId}}"
+      >
+        <block wx:if="{{item.itemType === 'official'}}">
+          <view class="official-meta">
+            <view class="source-mark">官</view>
+            <text class="source-name">{{item.sourceName || '校园信息平台'}}</text>
+            <text class="meta-dot">·</text>
+            <text class="meta-time">{{item.publishTimeText}}</text>
+            <text class="auto-badge" wx:if="{{item.autoUpdated}}">自动更新</text>
+          </view>
+          <text class="official-title">{{item.title}}</text>
+          <text class="official-summary" wx:if="{{item.summary}}">{{item.summary}}</text>
+
+          <view class="schedule-box" wx:if="{{item.scheduleItems.length}}">
+            <view class="schedule-row" wx:for="{{item.scheduleItems}}" wx:key="label">
+              <text class="schedule-label">{{item.label}}</text>
+              <text class="schedule-value">{{item.value}}</text>
+            </view>
+          </view>
+
+          <view class="notice-box" wx:if="{{item.importantNotices.length}}">
+            <text class="notice-title">重要提醒</text>
+            <text class="notice-item" wx:for="{{item.importantNotices}}" wx:key="*this">• {{item}}</text>
+          </view>
+
+          <view class="tag-row">
+            <text class="category-badge">{{item.categoryText}}</text>
+            <text class="info-tag" wx:for="{{item.displayTags}}" wx:key="*this">#{{item}}</text>
+            <text class="detail-arrow">›</text>
+          </view>
+        </block>
+
+        <block wx:elif="{{item.category === 'market'}}">
+          <view class="market-card-header">
+            <text class="market-card-label">{{item.marketType === 'book' ? '二手书' : '二手闲置'}}</text>
+            <text class="meta-time">{{item.createdAtText}}</text>
+          </view>
+          <view class="market-card-main">
+            <image class="market-cover" src="{{item.images[0]}}" mode="aspectFill" />
+            <view class="market-card-copy">
+              <text class="market-content">{{item.content}}</text>
+              <text class="market-author">来自 {{item.authorName}}</text>
+            </view>
+          </view>
+          <view class="market-specs" wx:if="{{item.marketDetails}}">
+            <text>数量：{{item.marketDetails.quantity}}</text>
+            <text>成色：{{item.marketDetails.condition}}</text>
+            <text>位置：{{item.marketDetails.location}}</text>
+            <text>交易：{{item.marketDetails.tradeMethod}}</text>
+            <text>原因：{{item.marketDetails.reason}}</text>
+          </view>
+          <view class="market-gallery" wx:if="{{item.images.length > 1}}">
+            <image wx:for="{{item.images}}" wx:key="*this" wx:if="{{index > 0}}" class="market-thumb" src="{{item}}" mode="aspectFill" />
+          </view>
+          <view class="interaction-row">
+            <text>赞 {{item.likes || 0}}</text>
+            <text>留言 {{item.comments || 0}}</text>
+            <text class="detail-link">查看物品 ›</text>
+          </view>
+        </block>
+
+        <block wx:else>
+          <view class="community-header">
+            <view class="avatar">{{item.authorInitial}}</view>
+            <view class="author-info">
+              <text class="author-name">{{item.authorName}}</text>
+              <text class="meta-time">{{item.createdAtText}}</text>
+            </view>
+            <text class="community-badge">{{item.categoryText}}</text>
+          </view>
+          <text class="community-content">{{item.content}}</text>
+          <view class="image-grid" wx:if="{{item.images.length}}">
+            <image
+              wx:for="{{item.images}}"
+              wx:key="*this"
+              class="post-image"
+              src="{{item}}"
+              mode="aspectFill"
+            />
+          </view>
+          <view class="interaction-row">
+            <text>赞 {{item.likes || 0}}</text>
+            <text>评论 {{item.comments || 0}}</text>
+            <text class="detail-link">查看详情 ›</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="load-state" wx:if="{{loading}}">正在加载…</view>
+      <view class="load-state tappable" wx:elif="{{hasMore}}" bindtap="loadMore">加载更多</view>
+      <view class="load-state" wx:else>已显示全部动态</view>
+    </view>
+
+    <view class="empty-state" wx:else>
+      <view class="empty-mark">i</view>
+      <text class="empty-title">暂时没有相关动态</text>
+      <text class="empty-desc">切换分类或下拉刷新后再看看</text>
+    </view>
+  </view>
+
+  <button class="publish-button" bindtap="goToPublish" aria-label="发布校园动态">
+    <text class="publish-plus">＋</text>
+  </button>
+</view>

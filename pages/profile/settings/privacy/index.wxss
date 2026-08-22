@@ -1,0 +1,36 @@
+.privacy-page {
+  background: linear-gradient(135deg, #6b8cff 0%, #7c59c6 100%);
+  min-height: 100vh;
+  padding: 24rpx;
+}
+
+.privacy-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 16rpx;
+  backdrop-filter: blur(10rpx);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.privacy-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid rgba(226, 232, 240, 0.5);
+}
+
+.privacy-item:last-child {
+  border-bottom: none;
+}
+
+.privacy-text {
+  font-size: 28rpx;
+  color: #334155;
+  font-weight: 500;
+}
+
+.privacy-switch {
+  transform: scale(1.2);
+}

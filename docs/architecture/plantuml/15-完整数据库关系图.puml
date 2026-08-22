@@ -1,0 +1,111 @@
+@startuml 完整数据库关系图
+
+entity "User\n(用户)" as User {
+  * _id : String <<PK>>
+  --
+  * username : String <<UK>>
+  * password : String
+  * role : String (student|admin)
+  * nickname : String
+  * idCardLast4 : String
+  avatarUrl : String
+  createdAt : Number
+  isActive : Boolean
+}
+
+entity "Subscription\n(订阅)" as Subscription {
+  * _id : String <<PK>>
+  --
+  * userId : String <<FK>>
+  tagIds : Array<String>
+  sourceIds : Array<String>
+  updatedAt : Number
+}
+
+entity "Tag\n(标签)" as Tag {
+  * _id : String <<PK>>
+  --
+  * name : String <<UK>>
+  icon : String
+  description : String
+}
+
+entity "Source\n(来源)" as Source {
+  * _id : String <<PK>>
+  --
+  * name : String <<UK>>
+  icon : String
+  description : String
+}
+
+entity "Content\n(内容)" as Content {
+  * _id : String <<PK>>
+  --
+  * title : String
+  summary : String
+  description : String
+  category : String
+  tags : Array<String>
+  sourceId : String <<FK>>
+  sourceName : String
+  campus : String
+  images : Array<String>
+  coverUrl : String
+  posterUrl : String
+  status : String (published|draft|archived)
+  createdBy : String
+  publishedBy : String <<FK>>
+  publishTime : Number
+  updatedAt : Number
+  viewCount : Number
+  favoriteCount : Number
+  shareCount : Number
+  commentCount : Number
+  hotScore : Number
+  featured : Boolean
+}
+
+entity "Favorite\n(收藏)" as Favorite {
+  * _id : String <<PK>>
+  --
+  * userId : String <<FK>>
+  * contentId : String <<FK>>
+  ts : Number
+}
+
+entity "History\n(浏览历史)" as History {
+  * _id : String <<PK>>
+  --
+  * userId : String <<FK>>
+  * contentId : String <<FK>>
+  ts : Number
+  duration : Number
+}
+
+entity "Banner\n(横幅)" as Banner {
+  * _id : String <<PK>>
+  --
+  * title : String
+  image : String
+  link : String
+  ts : Number
+}
+
+' 关系定义
+User ||--|| Subscription : "owns"
+User ||--o{ Favorite : "has"
+User ||--o{ History : "has"
+User ||--o{ Content : "publishes (admin only)"
+
+Subscription }o--o{ Tag : "subscribes"
+Subscription }o--o{ Source : "subscribes"
+
+Source ||--o{ Content : "publishes"
+
+Tag }o--o{ Content : "categorizes"
+
+Content ||--o{ Favorite : "is favorited"
+Content ||--o{ History : "is viewed"
+
+@enduml
+

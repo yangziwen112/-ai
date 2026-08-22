@@ -1,0 +1,86 @@
+<view class="page-reset">
+  <view class="reset-card">
+    <view class="reset-header">
+      <text class="header-icon">🔑</text>
+      <text class="header-title">重置密码</text>
+      <text class="header-subtitle">请输入账号和身份证后四位</text>
+    </view>
+
+    <view class="reset-form">
+      <!-- 账号 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-text">账号</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入账号" 
+          value="{{username}}"
+          bindinput="onUsernameInput"
+        />
+      </view>
+
+      <!-- 身份证后四位 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-text">身份证后四位</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入身份证后四位" 
+          value="{{idCardLast4}}"
+          bindinput="onIdCardInput"
+          maxlength="4"
+          type="number"
+        />
+      </view>
+
+      <!-- 新密码 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-text">新密码</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入新密码" 
+          password="{{!showPassword}}"
+          value="{{newPassword}}"
+          bindinput="onPasswordInput"
+        />
+        <view class="password-toggle" bindtap="togglePassword">
+          <text class="toggle-icon">{{showPassword ? '👁️' : '👁️‍🗨️'}}</text>
+        </view>
+      </view>
+
+      <!-- 确认密码 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-text">确认密码</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请再次输入新密码" 
+          password="{{!showPassword}}"
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+        />
+      </view>
+
+      <!-- 提交按钮 -->
+      <button 
+        class="submit-btn {{canSubmit ? '' : 'disabled'}}" 
+        bindtap="onSubmit"
+        disabled="{{!canSubmit || isLoading}}"
+      >
+        <text wx:if="{{!isLoading}}">重置密码</text>
+        <text wx:else>处理中...</text>
+      </button>
+
+      <!-- 返回登录 -->
+      <view class="back-login" bindtap="backToLogin">
+        <text class="back-text">返回登录</text>
+      </view>
+    </view>
+  </view>
+</view>
+

@@ -1,0 +1,33 @@
+<view class="page-fav">
+  <!-- 顶部栏 -->
+  <view style="padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; justify-content: space-between; align-items: center;">
+    <text style="font-size: 18px; font-weight: bold;">我的收藏</text>
+    <view style="display: flex; gap: 12px; align-items: center;">
+      <text style="font-size: 14px; opacity: 0.9;">{{totalCount}} 个</text>
+      <button wx:if="{{totalCount > 0}}" style="padding: 6px 12px; background: rgba(255,255,255,{{editMode ? 0.6 : 0.3}}); border: 1px solid rgba(255,255,255,0.5); color: white; border-radius: 4px; font-size: 12px; margin: 0;" bindtap="onToggleEditMode">{{editMode ? '完成' : '编辑'}}</button>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <block wx:if="{{loading && list.length === 0}}">
+    <view style="height: 120px; margin: 12px 16px; background: #eee; border-radius: 8px;"></view>
+  </block>
+  
+  <!-- 内容列表 -->
+  <block wx:else>
+    <block wx:for="{{list}}" wx:key="_id">
+      <view style="position: relative; margin: 12px 16px;">
+        <card-item item="{{item}}" />
+        <!-- 删除按钮 -->
+        <view wx:if="{{editMode}}" style="position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; background: #ff6b6b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; z-index: 10; line-height: 1;" data-id="{{item._id}}" bindtap="onRemoveFavorite">✕</view>
+      </view>
+    </block>
+    <!-- 底部提示 -->
+    <view style="text-align:center; padding: 12px 0 24px; color: #999; font-size: 12px;">{{hasMore ? '正在加载更多…' : (list.length ? '— 没有更多了 —' : '暂无收藏')}}</view>
+  </block>
+
+  <!-- 底部操作栏 -->
+  <view wx:if="{{editMode && totalCount > 0}}" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px 24px; background: white; border-top: 1px solid #eee; z-index: 100;">
+    <button style="padding: 12px; background: #ff6b6b; color: white; border-radius: 8px; font-size: 14px; font-weight: bold; width: 100%; margin: 0;" bindtap="onClearAll">清空全部 ({{totalCount}})</button>
+  </view>
+</view> 

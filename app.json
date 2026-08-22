@@ -1,0 +1,70 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/auth-login/index",
+    "pages/register/index",
+    "pages/admin/index",
+    "pages/detail/index",
+    "pages/subscription/index",
+    "pages/profile/index",
+    "pages/profile/settings/index",
+    "pages/profile/settings/privacy/index",
+    "pages/profile/settings/profile/index",
+    "pages/chat/index",
+    "pages/publish/index",
+    "pages/favorites/index",
+    "pages/history/index",
+    "pages/reset-password/index",
+    "pages/campus-wall/index",
+    "pages/campus-wall/publish",
+    "pages/campus-wall/detail",
+    "pages/campus-wall/search",
+    "pages/messages/index",
+    "pages/messages/chat"
+  ],
+  "window": {
+    "navigationBarTitleText": "民大通",
+    "navigationStyle": "default",
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#F4F7FB"
+  },
+  "tabBar": {
+    "color": "#8E8E93",
+    "selectedColor": "#2563EB",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "position": "bottom",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "images/首页.png",
+        "selectedIconPath": "images/首页-选中.png"
+      },
+      {
+        "pagePath": "pages/campus-wall/index",
+        "text": "动态",
+        "iconPath": "images/发现.png",
+        "selectedIconPath": "images/发现-选中.png"
+      },
+      {
+        "pagePath": "pages/chat/index",
+        "text": "助手",
+        "iconPath": "images/发现.png",
+        "selectedIconPath": "images/发现-选中.png"
+      },
+      {
+        "pagePath": "pages/messages/index",
+        "text": "消息",
+        "iconPath": "images/订阅.png",
+        "selectedIconPath": "images/订阅-选中.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "images/我的.png",
+        "selectedIconPath": "images/我的-选中.png"
+      }
+    ]
+  }
+}

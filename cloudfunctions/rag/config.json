@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "openapi": [
+      "security.msgSecCheck"
+    ],
+    "scopes": [
+      {
+        "scope": "cloudbase:database",
+        "description": "访问数据库"
+      }
+    ]
+  },
+  "env": {},
+  "timeout": 60,
+  "memory": 512
+}

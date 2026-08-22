@@ -1,0 +1,26 @@
+{
+  "name": "rag",
+  "version": "1.0.0",
+  "description": "民大通 LangGraph STAR 多智能体 RAG 工作流",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/workflow.test.js"
+  },
+  "keywords": [
+    "rag",
+    "llm",
+    "deepseek"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@langchain/core": "0.3.79",
+    "@langchain/langgraph": "0.4.9",
+    "web-streams-polyfill": "4.3.0",
+    "wx-server-sdk": "4.0.2",
+    "zod": "3.25.76"
+  }
+}

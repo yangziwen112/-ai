@@ -1,0 +1,110 @@
+<view class="page-home">
+  <view class="hero">
+    <view class="brand-row">
+      <view>
+        <text class="brand-title">民大通</text>
+        <text class="brand-subtitle">校园信息，一处掌握</text>
+      </view>
+      <view class="refresh-action {{refreshing ? 'rotating' : ''}}" bindtap="refreshData">↻</view>
+    </view>
+
+    <view class="search-box">
+      <text class="search-icon">⌕</text>
+      <input
+        class="search-input"
+        value="{{searchKeyword}}"
+        placeholder="搜索通知、活动、竞赛、招聘…"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="onSearch"
+      />
+      <text class="clear-search" wx:if="{{searchKeyword}}" bindtap="clearSearch">×</text>
+      <view class="search-submit" bindtap="onSearch">搜索</view>
+    </view>
+  </view>
+
+  <view class="quick-grid">
+    <view class="quick-item" bindtap="goToSubscription">
+      <view class="quick-icon blue">订</view>
+      <text class="quick-title">我的订阅</text>
+      <text class="quick-desc">关注栏目来源</text>
+    </view>
+    <view class="quick-item" bindtap="goToCampusWall">
+      <view class="quick-icon orange">墙</view>
+      <text class="quick-title">校园动态</text>
+      <text class="quick-desc">资讯与校园交流</text>
+    </view>
+    <view class="quick-item" bindtap="goToAssistant">
+      <view class="quick-icon violet">AI</view>
+      <text class="quick-title">智能助手</text>
+      <text class="quick-desc">查信息问办事</text>
+    </view>
+  </view>
+
+  <view class="upcoming-panel" wx:if="{{upcomingItems.length}}">
+    <view class="section-heading">
+      <view>
+        <text class="section-title">近期关注</text>
+        <text class="section-caption">跨栏目汇总报名截止与活动时间</text>
+      </view>
+    </view>
+    <scroll-view scroll-x class="upcoming-scroll" enable-flex>
+      <view
+        class="upcoming-card"
+        wx:for="{{upcomingItems}}"
+        wx:key="_id"
+        data-id="{{item._id}}"
+        bindtap="openUpcoming"
+      >
+        <view class="upcoming-meta">
+          <text class="upcoming-category">{{item.categoryText}}</text>
+          <text class="upcoming-label">{{item.nodeLabel}}</text>
+        </view>
+        <text class="upcoming-title">{{item.title}}</text>
+        <text class="upcoming-time">{{item.nodeTimeText}}</text>
+        <text class="upcoming-source">{{item.sourceName}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="feed-panel">
+    <view class="section-heading feed-heading">
+      <view>
+        <text class="section-title">校园聚合资讯</text>
+        <text class="section-caption">通知、学术、就业、考试与校园生活统一汇总</text>
+      </view>
+    </view>
+
+    <scroll-view scroll-x class="category-scroll" enable-flex>
+      <view
+        wx:for="{{tags}}"
+        wx:key="id"
+        class="category-chip {{selectedTag === item.id ? 'active' : ''}}"
+        data-tag="{{item.id}}"
+        bindtap="onTagClick"
+      >{{item.name}}</view>
+    </scroll-view>
+
+    <view class="skeleton-list" wx:if="{{loading && !list.length}}">
+      <view class="skeleton-card skeleton" wx:for="{{[1,2,3]}}" wx:key="*this"></view>
+    </view>
+
+    <view class="content-list" wx:elif="{{list.length}}">
+      <card-item
+        wx:for="{{list}}"
+        wx:key="_id"
+        item="{{item}}"
+        bind:favorite="onFavorite"
+      />
+      <view class="load-more" wx:if="{{loading}}">正在加载…</view>
+      <view class="load-more tappable" wx:elif="{{hasMore}}" bindtap="loadMore">加载更多</view>
+      <view class="load-more" wx:else>已显示全部资讯</view>
+    </view>
+
+    <view class="empty-state" wx:else>
+      <view class="empty-mark">i</view>
+      <text class="empty-title">暂时没有相关资讯</text>
+      <text class="empty-desc">可切换栏目，或稍后下拉刷新</text>
+    </view>
+  </view>
+</view>

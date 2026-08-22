@@ -1,0 +1,12 @@
+<view class="settings-page">
+  <view class="settings-card">
+    <view class="setting-item" bindtap="goToPrivacySettings">
+      <text class="setting-text">隐私设置</text>
+      <text class="setting-arrow">›</text>
+    </view>
+    <view class="setting-item" bindtap="goToProfileSettings">
+      <text class="setting-text">个人信息修改</text>
+      <text class="setting-arrow">›</text>
+    </view>
+  </view>
+</view>

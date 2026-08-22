@@ -1,0 +1,38 @@
+# Windows
+[Dd]esktop.ini
+Thumbs.db
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+
+# Node.js
+node_modules/
+project.private.config.json
+
+# 内部接口与鉴权排错资料不进入公开仓库
+docs/api_routes.md
+docs/crawler_auth_troubleshooting.md
+
+# 本地密钥、云函数配置和内容缓存
+.env
+.env.*
+!.env.example
+*.secret
+*.key
+*.pem
+*.p12
+*.log
+video-cache/
+video-output/
+wechat-video-output/
+*.mp4
+*.wav
+*.srt
+*.vtt
+__pycache__/
+.pytest_cache/

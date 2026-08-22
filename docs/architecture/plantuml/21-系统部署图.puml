@@ -1,0 +1,104 @@
+@startuml 系统部署图
+
+node "用户设备" {
+  component [微信客户端] as Wechat
+  component [民大通小程序] as MiniApp
+}
+
+cloud "微信云开发平台" {
+  node "云函数容器" {
+    component [api云函数\n(wx-server-sdk)] as CloudFunc
+  }
+  
+  database "微信云数据库集群" {
+    component [users集合] as WXUsersDB
+    component [contents集合] as WXContentsDB
+    component [tags集合] as WXTagsDB
+    component [subscriptions集合] as WXSubsDB
+    component [favorites集合] as WXFavDB
+    component [history集合] as WXHistDB
+  }
+  
+  storage "云存储" {
+    component [图片资源] as Images
+  }
+}
+
+node "Express后端服务器" {
+  component [Express\n应用] as Express
+  
+  node "API路由层" {
+    component [/content] as ContentAPI
+    component [/meta] as MetaAPI
+    component [/favorites] as FavAPI
+    component [/user] as UserAPI
+    component [/subscribe] as SubAPI
+    component [/history] as HistAPI
+  }
+  
+  node "业务逻辑层" {
+    component [内容服务] as ContentService
+    component [用户服务] as UserService
+    component [订阅服务] as SubService
+  }
+}
+
+database "MongoDB数据库\n(备选方案)" {
+  component [users集合] as MongoUsersDB
+  component [contents集合] as MongoContentsDB
+  component [tags集合] as MongoTagsDB
+  component [subscriptions集合] as MongoSubsDB
+  component [favorites集合] as MongoFavDB
+  component [history集合] as MongoHistDB
+}
+
+node "微信服务器" {
+  component [认证服务] as Auth
+  component [API网关] as Gateway
+}
+
+' 前端连接
+MiniApp -down-> CloudFunc : 选项1: 直接调用\nHTTPS
+MiniApp -down-> Express : 选项2: 代理调用\nHTTP/HTTPS
+
+' 云函数连接
+CloudFunc -down-> WXUsersDB : 查询/更新
+CloudFunc -down-> WXContentsDB : 查询/更新
+CloudFunc -down-> WXTagsDB : 查询
+CloudFunc -down-> WXSubsDB : 查询/更新
+CloudFunc -down-> WXFavDB : 查询/更新
+CloudFunc -down-> WXHistDB : 查询/更新
+CloudFunc -right-> Images : 上传/下载
+
+' Express连接
+Express --> ContentAPI
+Express --> MetaAPI
+Express --> FavAPI
+Express --> UserAPI
+Express --> SubAPI
+Express --> HistAPI
+
+' 路由到业务逻辑
+ContentAPI --> ContentService
+MetaAPI --> ContentService
+FavAPI --> UserService
+UserAPI --> UserService
+SubAPI --> SubService
+HistAPI --> UserService
+
+' 业务逻辑到数据库
+ContentService -right-> MongoContentsDB
+ContentService -right-> MongoTagsDB
+UserService -right-> MongoUsersDB
+UserService -right-> MongoFavDB
+UserService -right-> MongoHistDB
+SubService -right-> MongoSubsDB
+
+' 微信认证
+MiniApp -right-> Auth : 用户认证
+MiniApp -right-> Gateway : API调用
+
+Wechat *-- MiniApp
+
+@enduml
+

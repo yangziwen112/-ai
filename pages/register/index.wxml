@@ -1,0 +1,130 @@
+<view class="page-register">
+  <!-- 顶部装饰 -->
+  <view class="header-decoration">
+    <view class="circle circle-1"></view>
+    <view class="circle circle-2"></view>
+  </view>
+
+  <!-- 注册卡片 -->
+  <view class="register-card">
+    <!-- 标题 -->
+    <view class="register-header">
+      <text class="header-icon">📝</text>
+      <text class="header-title">注册账号</text>
+      <text class="header-subtitle">加入民大通校园信息平台</text>
+    </view>
+
+    <!-- 表单 -->
+    <view class="register-form">
+      <!-- 账号 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">👤</text>
+          <text class="label-text">账号（学号）</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入学号或账号" 
+          value="{{username}}"
+          bindinput="onUsernameInput"
+          maxlength="20"
+          type="number"
+        />
+      </view>
+
+      <!-- 昵称 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">😊</text>
+          <text class="label-text">昵称</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入昵称" 
+          value="{{nickname}}"
+          bindinput="onNicknameInput"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 密码 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">🔒</text>
+          <text class="label-text">密码</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入密码（6-20位）" 
+          password="{{!showPassword}}"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          maxlength="20"
+        />
+        <view class="password-toggle" bindtap="togglePassword">
+          <text class="toggle-icon">{{showPassword ? '👁️' : '👁️‍🗨️'}}</text>
+        </view>
+      </view>
+
+      <!-- 确认密码 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">🔐</text>
+          <text class="label-text">确认密码</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请再次输入密码" 
+          password="{{!showPassword}}"
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 身份证后四位 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">🪪</text>
+          <text class="label-text">身份证后四位</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="用于找回密码" 
+          value="{{idCardLast4}}"
+          bindinput="onIdCardInput"
+          maxlength="4"
+          type="number"
+        />
+        <view class="input-hint">
+          <text class="hint-text">用于找回密码，请务必记住</text>
+        </view>
+      </view>
+
+      <view class="student-register-tip">
+        <text class="student-register-icon">🎓</text>
+        <view>
+          <text class="student-register-title">学生账号注册</text>
+          <text class="student-register-desc">管理员账号由平台后台统一创建，不开放自助注册。</text>
+        </view>
+      </view>
+
+      <!-- 注册按钮 -->
+      <button 
+        class="register-btn {{canSubmit ? '' : 'disabled'}}" 
+        bindtap="onRegister"
+        disabled="{{!canSubmit || isLoading}}"
+      >
+        <text wx:if="{{!isLoading}}">注册</text>
+        <text wx:else>注册中...</text>
+      </button>
+
+      <!-- 返回登录 -->
+      <view class="back-login" bindtap="backToLogin">
+        <text class="back-text">已有账号？</text>
+        <text class="back-link">去登录</text>
+      </view>
+    </view>
+  </view>
+</view>
+

@@ -1,0 +1,211 @@
+<view class="publish-page">
+  <!-- 顶部导航 -->
+  <view class="header">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="header-title">民大通管理端</text>
+    <view class="header-right">
+      <text class="header-action">...</text>
+    </view>
+  </view>
+  
+  <!-- 发布信息标题 -->
+  <view class="publish-info">
+    <text class="publish-info-title">{{ editingId ? '编辑信息' : '发布信息' }}</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{ loading }}" class="loading">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+
+  <!-- 表单内容 -->
+  <view wx:else class="form-container">
+    <!-- 标题输入 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">信息标题</text>
+        <text class="required">*</text>
+      </view>
+      <input
+        class="input-field title-input"
+        type="text"
+        placeholder="请输入标题（至少3个字符）"
+        maxlength="100"
+        value="{{ title }}"
+        bindinput="onTitleChange"
+      />
+      <view class="char-count">{{ title.length }}/100</view>
+    </view>
+
+    <!-- 描述输入 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">信息描述</text>
+        <text class="required">*</text>
+      </view>
+      <textarea
+        class="textarea-field"
+        placeholder="请输入详细描述（至少10个字符）"
+        maxlength="1000"
+        value="{{ description }}"
+        bindinput="onDescriptionChange"
+      />
+      <view class="char-count">{{ description.length }}/1000</view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">资讯分类</text>
+        <text class="required">*</text>
+      </view>
+      <picker
+        class="picker"
+        mode="selector"
+        range="{{categories}}"
+        range-key="name"
+        value="{{categoryIndex}}"
+        bindchange="onCategoryChange"
+      >
+        <view class="picker-value">
+          <text class="selected-text">{{categories[categoryIndex].name}}</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 标签选择 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">选择标签</text>
+        <text class="required">*</text>
+      </view>
+      <view class="tags-container">
+        <view
+          wx:for="{{ tags }}"
+          wx:key="item._id"
+          class="tag-item {{ selectedTags.includes(item._id) ? 'selected' : '' }} {{ clickingTagId === item._id ? 'pressing' : '' }}"
+          data-id="{{ item._id }}"
+          bindtap="onTagClick"
+        >
+          <text class="tag-icon">{{ item.icon || '🏷️' }}</text>
+          <text class="tag-name">{{ item.name }}</text>
+          <text class="tag-checkmark" wx:if="{{ selectedTags.includes(item._id) }}">✓</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 来源选择 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">信息来源</text>
+        <text class="required">*</text>
+      </view>
+      <picker
+        class="picker"
+        mode="selector"
+        range="{{ sources }}"
+        range-key="name"
+        value="{{ sourceIndex }}"
+        bindchange="onSourceChange"
+      >
+        <view class="picker-value">
+          <text wx:if="{{ selectedSource }}" class="selected-text">
+            {{ selectedSourceName }}
+          </text>
+          <text wx:else class="placeholder">请选择来源</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 图片上传 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">上传图片</text>
+        <text class="optional">（可选）</text>
+      </view>
+      
+      <!-- 已选图片 -->
+      <view wx:if="{{ images.length > 0 }}" class="images-container">
+        <view
+          wx:for="{{ images }}"
+          wx:key="index"
+          class="image-item"
+          bindtap="onPreviewImage"
+          data-url="{{ item }}"
+        >
+          <image src="{{ item }}" mode="aspectFill" class="image" />
+          <view class="image-delete" bindtap="onRemoveImage" data-index="{{ index }}">
+            <text>×</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 上传按钮 -->
+      <view wx:if="{{ images.length < 5 }}" class="upload-btn" bindtap="onUploadImage">
+        <text class="icon">+</text>
+        <text>上传图片 ({{ images.length }}/5)</text>
+      </view>
+    </view>
+
+    <!-- 网站链接（可选） -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">网站链接</text>
+        <text class="optional">（可选）</text>
+      </view>
+      <view class="link-toggle" bindtap="onToggleLink">
+        <text class="link-toggle-text">{{ showLink ? '已添加网站链接' : '添加网站链接' }}</text>
+        <text class="link-toggle-icon">{{ showLink ? '✓' : '+' }}</text>
+      </view>
+      <view wx:if="{{ showLink }}" class="link-input-wrap">
+        <input
+          class="input-field link-input"
+          type="text"
+          placeholder="请输入官方原文链接（可选）"
+          value="{{ linkUrl }}"
+          bindinput="onLinkChange"
+        />
+        <view class="link-remove" bindtap="onRemoveLink">
+          <text>移除链接</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 按钮组 -->
+    <view class="form-actions">
+      <button
+        class="btn btn-secondary"
+        bindtap="goBack"
+      >
+        返回
+      </button>
+      <button
+        class="btn btn-secondary"
+        bindtap="saveDraft"
+      >
+        保存草稿
+      </button>
+      <button
+        class="btn btn-primary {{ publishing ? 'disabled' : '' }}"
+        bindtap="onPublish"
+        disabled="{{ publishing }}"
+      >
+        {{ publishing ? (editingId ? '更新中...' : '发布中...') : (editingId ? '更新' : '发布') }}
+      </button>
+    </view>
+
+    <!-- 提示信息 -->
+    <view class="tips">
+      <view class="tip-item">
+        <text class="tip-icon">ℹ️</text>
+        <text>请确保信息真实、准确且合法</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">ℹ️</text>
+        <text>发布后将立即显示在大厅中</text>
+      </view>
+    </view>
+  </view>
+</view>

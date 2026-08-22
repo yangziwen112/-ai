@@ -1,0 +1,24 @@
+<view class="profile-settings-page">
+  <view class="profile-card">
+    <!-- 头像上传 -->
+    <view class="profile-item">
+      <text class="profile-label">头像</text>
+      <view class="avatar-upload">
+        <image class="avatar" src="{{user.avatarUrl || 'https://res.wx.qq.com/a/wx_fed/assets/res/OTE0YTAw.png'}}" mode="aspectFill"/>
+        <button class="upload-btn" bindtap="chooseAvatar">更换头像</button>
+      </view>
+    </view>
+
+    <!-- 账号ID -->
+    <view class="profile-item">
+      <text class="profile-label">账号ID</text>
+      <text class="profile-value">{{user.username || '未登录'}}</text>
+    </view>
+
+    <!-- 密码修改 -->
+    <view class="profile-item">
+      <text class="profile-label">密码</text>
+      <button class="password-btn" bindtap="navigateToPasswordChange">修改密码</button>
+    </view>
+  </view>
+</view>

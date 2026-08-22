@@ -1,0 +1,27 @@
+<view class="info-card" bindtap="onTap" bindlongpress="onLongPress">
+  <view class="cover-wrap" wx:if="{{item.coverUrl || (item.images && item.images.length)}}">
+    <image class="cover" src="{{item.coverUrl || item.images[0]}}" mode="aspectFill" />
+  </view>
+
+  <view class="card-main">
+    <view class="meta-row">
+      <text class="category category-{{item.category}}">{{item.categoryText || '校园资讯'}}</text>
+      <text class="source">{{item.sourceName || item.source || '校园信息平台'}}</text>
+      <text class="dot">·</text>
+      <text class="time">{{item.publishTimeText || '近期发布'}}</text>
+    </view>
+
+    <text class="title">{{item.title}}</text>
+    <text class="summary" wx:if="{{item.summary}}">{{item.summary}}</text>
+
+    <view class="card-bottom">
+      <view class="tags" wx:if="{{item.tags && item.tags.length}}">
+        <text class="tag" wx:for="{{item.displayTags || item.tags}}" wx:key="*this">#{{item}}</text>
+      </view>
+      <view class="favorite {{item.favored ? 'active' : ''}}" catchtap="onToggleFavorite">
+        <text class="favorite-icon">{{item.favored ? '★' : '☆'}}</text>
+        <text>{{item.favored ? '已收藏' : '收藏'}}</text>
+      </view>
+    </view>
+  </view>
+</view>

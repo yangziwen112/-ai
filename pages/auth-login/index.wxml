@@ -1,0 +1,102 @@
+<view class="page-login">
+  <!-- 顶部装饰 -->
+  <view class="header-decoration">
+    <view class="circle circle-1"></view>
+    <view class="circle circle-2"></view>
+    <view class="circle circle-3"></view>
+  </view>
+
+  <!-- 登录卡片 -->
+  <view class="login-card">
+    <!-- 标题 -->
+    <view class="login-header">
+      <text class="app-icon">🎓</text>
+      <text class="app-name">民大通</text>
+      <text class="app-subtitle">校园信息聚合平台</text>
+    </view>
+
+    <!-- 表单 -->
+    <view class="login-form">
+      <!-- 账号输入 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">👤</text>
+          <text class="label-text">账号</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入账号" 
+          value="{{username}}"
+          bindinput="onUsernameInput"
+          maxlength="20"
+        />
+      </view>
+
+      <!-- 密码输入 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">🔒</text>
+          <text class="label-text">密码</text>
+        </view>
+        <input 
+          class="form-input" 
+          placeholder="请输入密码" 
+          password="{{!showPassword}}"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          maxlength="20"
+        />
+        <view class="password-toggle" bindtap="togglePassword">
+          <text class="toggle-icon">{{showPassword ? '👁️' : '👁️‍🗨️'}}</text>
+        </view>
+      </view>
+
+      <!-- 身份选择 -->
+      <view class="form-item">
+        <view class="input-label">
+          <text class="label-icon">🎭</text>
+          <text class="label-text">身份</text>
+        </view>
+        <view class="role-selector">
+          <view 
+            class="role-option {{role === 'student' ? 'active' : ''}}"
+            bindtap="selectRole"
+            data-role="student"
+          >
+            <text class="role-icon">🎓</text>
+            <text class="role-text">学生</text>
+          </view>
+          <view 
+            class="role-option {{role === 'admin' ? 'active' : ''}}"
+            bindtap="selectRole"
+            data-role="admin"
+          >
+            <text class="role-icon">👨‍💼</text>
+            <text class="role-text">管理员</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 登录按钮 -->
+      <button 
+        class="login-btn {{canSubmit ? '' : 'disabled'}}" 
+        bindtap="onLogin"
+        disabled="{{!canSubmit || isLoading}}"
+      >
+        <text wx:if="{{!isLoading}}">登录</text>
+        <text wx:else>登录中...</text>
+      </button>
+
+      <!-- 注册按钮 -->
+      <button class="register-btn" bindtap="onRegister">
+        注册
+      </button>
+
+      <!-- 忘记密码 -->
+      <view class="forgot-password" bindtap="onForgotPassword">
+        <text class="forgot-text">忘记密码？</text>
+      </view>
+    </view>
+  </view>
+</view>
+

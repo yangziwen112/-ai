@@ -1,0 +1,44 @@
+.admin-page { min-height: 100vh; padding-bottom: 40rpx; background: #f4f7fb; }
+.admin-hero { padding: 38rpx 28rpx 70rpx; background: linear-gradient(135deg, #172554, #1d4ed8); }
+.hero-title, .hero-desc { display: block; color: #fff; }
+.hero-title { font-size: 39rpx; font-weight: 750; }
+.hero-desc { margin-top: 9rpx; font-size: 23rpx; opacity: .78; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14rpx; margin: -38rpx 22rpx 22rpx; position: relative; }
+.stat-card { display: flex; flex-direction: column; align-items: center; padding: 24rpx 10rpx; background: #fff; border: 1rpx solid #e2e9f3; border-radius: 18rpx; box-shadow: 0 10rpx 24rpx rgba(23,55,100,.09); }
+.stat-value { color: #1d4ed8; font-size: 35rpx; font-weight: 750; }
+.stat-label { margin-top: 6rpx; color: #7c899a; font-size: 20rpx; }
+.admin-section { margin: 0 22rpx 20rpx; padding: 24rpx; background: #fff; border: 1rpx solid #e5ebf3; border-radius: 20rpx; box-shadow: 0 7rpx 20rpx rgba(30,55,90,.05); }
+.section-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20rpx; }
+.section-title, .section-desc { display: block; }
+.section-title { color: #1e2c40; font-size: 29rpx; font-weight: 700; }
+.section-desc { margin-top: 6rpx; color: #8a97a8; font-size: 21rpx; }
+.refresh-link { color: #2563eb; font-size: 23rpx; }
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15rpx; }
+.action-card { display: flex; flex-direction: column; padding: 22rpx; background: #f5f8fc; border: 1rpx solid #e1e9f3; border-radius: 16rpx; }
+.action-card.primary { background: #edf4ff; border-color: #cfe0fb; }
+.action-card:active { opacity: .72; }
+.action-icon { width: 53rpx; height: 53rpx; display: flex; align-items: center; justify-content: center; color: #fff; background: #2563eb; border-radius: 14rpx; font-size: 34rpx; }
+.action-icon.crawler { color: #047857; background: #d1fae5; }
+.action-title { margin-top: 16rpx; color: #23334a; font-size: 25rpx; font-weight: 650; }
+.action-desc { margin-top: 6rpx; color: #8794a5; font-size: 20rpx; line-height: 1.45; }
+.crawler-status { display: flex; align-items: center; margin-top: 18rpx; padding: 14rpx 16rpx; color: #64748b; background: #f8fafc; border-radius: 11rpx; font-size: 21rpx; }
+.crawler-status.access-denied { color: #b45309; background: #fff7ed; }
+.crawler-status.access-denied .status-dot { background: #f59e0b; }
+.crawler-jobs { margin-top: 18rpx; padding: 18rpx; background: #f7f9fc; border: 1rpx solid #e2e8f0; border-radius: 16rpx; }
+.crawler-panel-heading { margin-bottom: 14rpx; }
+.crawler-panel-title, .crawler-panel-desc, .job-title, .job-desc { display: block; }
+.crawler-panel-title { color: #25344a; font-size: 25rpx; font-weight: 700; }
+.crawler-panel-desc { margin-top: 5rpx; color: #8a97a8; font-size: 20rpx; }
+.crawler-job { display: flex; align-items: center; min-height: 92rpx; margin-top: 12rpx; padding: 14rpx; background: #fff; border: 1rpx solid #e3eaf3; border-radius: 13rpx; }
+.crawler-job:active, .crawler-job.running { background: #eef5ff; border-color: #bfd5fb; }
+.job-icon { display: flex; align-items: center; justify-content: center; width: 54rpx; height: 54rpx; flex-shrink: 0; color: #1d4ed8; background: #e8f0ff; border-radius: 12rpx; font-size: 23rpx; font-weight: 700; }
+.job-copy { flex: 1; min-width: 0; margin-left: 14rpx; }
+.job-title { color: #27364b; font-size: 24rpx; font-weight: 650; }
+.job-desc { margin-top: 5rpx; color: #8491a3; font-size: 19rpx; line-height: 1.4; }
+.job-action { flex-shrink: 0; margin-left: 12rpx; color: #2563eb; font-size: 21rpx; }
+.status-dot { width: 12rpx; height: 12rpx; margin-right: 10rpx; background: #10b981; border-radius: 50%; }
+.loading { padding: 40rpx 0; color: #8a97a8; text-align: center; font-size: 23rpx; }
+.maintenance { box-shadow: none; }
+.maintenance-desc { display: block; margin-top: 9rpx; color: #8a97a8; font-size: 21rpx; line-height: 1.55; }
+.maintenance-btn { height: 70rpx; margin-top: 18rpx; color: #44546a; background: #eef2f7; border-radius: 12rpx; font-size: 23rpx; }
+.maintenance-btn.danger { color: #a33a2b; background: #fff0ed; }

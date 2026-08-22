@@ -1,0 +1,72 @@
+@startuml 订阅标签时序图
+
+actor 用户 as User
+participant "订阅页面UI\n(subscription)" as UI
+participant "认证工具\n(auth.js)" as Auth
+participant "请求工具\n(request.js)" as Request
+participant "云函数\n(api)" as Cloud
+database "云数据库\n(subscriptions)" as CloudDB
+
+User -> UI: 点击标签或来源
+activate UI
+
+alt 未登录
+  UI -> Auth: 检查登录状态
+  activate Auth
+  Auth --> UI: 返回未登录
+  deactivate Auth
+  
+  UI --> User: 显示登录提示
+  deactivate UI
+  
+  User -> UI: 点击登录
+  activate UI
+  UI --> User: 跳转登录页
+  deactivate UI
+  
+else 已登录
+  UI -> UI: 更新本地状态\n(即时反馈)
+  
+  UI --> User: Toast提示\n切换订阅状态
+  
+  UI -> Request: callApi('user/subscribe/set',\n{userId, tagIds, sourceIds})
+  activate Request
+  
+  Request -> Cloud: 调用云函数
+  activate Cloud
+  
+  Cloud -> CloudDB: 查询现有订阅\n(userId)
+  activate CloudDB
+  CloudDB --> Cloud: 返回订阅数据
+  deactivate CloudDB
+  
+  Cloud -> Cloud: 更新tagIds\n和sourceIds
+  
+  Cloud -> CloudDB: 保存到数据库
+  activate CloudDB
+  CloudDB --> Cloud: 返回成功
+  deactivate CloudDB
+  
+  Cloud --> Request: 返回{ok: true}
+  deactivate Cloud
+  
+  Request --> UI: 返回成功
+  deactivate Request
+  
+  UI -> UI: 加载相关内容\n(基于tagIds/sourceIds)
+  
+  UI -> Request: callApi('feed/recommend',\n{tags, sources})
+  activate Request
+  Request -> Cloud: 查询推荐内容
+  activate Cloud
+  Cloud --> Request: 返回内容列表
+  deactivate Cloud
+  Request --> UI: 返回数据
+  deactivate Request
+  
+  UI --> User: 显示推荐内容
+  deactivate UI
+end
+
+@enduml
+

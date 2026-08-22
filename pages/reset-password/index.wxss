@@ -1,0 +1,126 @@
+/* 重置密码页面 */
+.page-reset {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+}
+
+.reset-card {
+  width: 100%;
+  max-width: 600rpx;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 32rpx;
+  padding: 60rpx 40rpx 40rpx;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+}
+
+.reset-header {
+  text-align: center;
+  margin-bottom: 50rpx;
+}
+
+.header-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.header-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12rpx;
+}
+
+.header-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.reset-form {
+  width: 100%;
+}
+
+.form-item {
+  margin-bottom: 32rpx;
+  position: relative;
+}
+
+.input-label {
+  margin-bottom: 12rpx;
+}
+
+.label-text {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: #f5f7fa;
+  border: 2rpx solid #e8ecf0;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #333;
+  transition: all 0.3s;
+}
+
+.form-input:focus {
+  background: #fff;
+  border-color: #667eea;
+  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 24rpx;
+  bottom: 24rpx;
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-icon {
+  font-size: 28rpx;
+  opacity: 0.6;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 88rpx;
+  margin-top: 40rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn.disabled {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+.back-login {
+  text-align: center;
+  padding: 30rpx 0 10rpx;
+}
+
+.back-text {
+  font-size: 24rpx;
+  color: #667eea;
+  font-weight: 500;
+}
+

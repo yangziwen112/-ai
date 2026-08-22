@@ -1,0 +1,63 @@
+@startuml 前端页面结构图
+
+package "民大通小程序" {
+  package "TabBar 主页面" {
+    [首页\n(home)]
+    [校园墙\n(campus-wall)]
+    [AI 助手\n(chat)]
+    [消息\n(messages)]
+    [我的\n(profile)]
+  }
+
+  package "公开资讯" {
+    [资讯详情\n(detail)]
+  }
+
+  package "校园墙功能" {
+    [帖子发布\n(campus-wall/publish)]
+    [帖子详情\n(campus-wall/detail)]
+    [用户和帖子搜索\n(campus-wall/search)]
+    [私信聊天\n(messages/chat)]
+  }
+
+  package "账号与个性化" {
+    [登录\n(auth-login)]
+    [注册\n(register)]
+    [密码重置\n(reset-password)]
+    [订阅\n(subscription)]
+    [收藏\n(favorites)]
+    [浏览历史\n(history)]
+    [设置\n(profile/settings)]
+  }
+
+  package "管理功能" {
+    [管理中心\n(admin)]
+    [资讯发布与编辑\n(publish)]
+  }
+}
+
+package "自定义组件" {
+  [card-item\n资讯卡片]
+}
+
+[首页\n(home)] ..> [card-item\n资讯卡片] : use
+[收藏\n(favorites)] ..> [card-item\n资讯卡片] : use
+[浏览历史\n(history)] ..> [card-item\n资讯卡片] : use
+[管理中心\n(admin)] ..> [card-item\n资讯卡片] : use
+
+[首页\n(home)] --> [资讯详情\n(detail)]
+[校园墙\n(campus-wall)] --> [帖子发布\n(campus-wall/publish)]
+[校园墙\n(campus-wall)] --> [帖子详情\n(campus-wall/detail)]
+[校园墙\n(campus-wall)] --> [用户和帖子搜索\n(campus-wall/search)]
+[帖子详情\n(campus-wall/detail)] --> [私信聊天\n(messages/chat)]
+[消息\n(messages)] --> [私信聊天\n(messages/chat)]
+[我的\n(profile)] --> [订阅\n(subscription)]
+[我的\n(profile)] --> [收藏\n(favorites)]
+[我的\n(profile)] --> [浏览历史\n(history)]
+[我的\n(profile)] --> [设置\n(profile/settings)]
+[我的\n(profile)] --> [管理中心\n(admin)] : admin
+[管理中心\n(admin)] --> [资讯发布与编辑\n(publish)]
+[登录\n(auth-login)] --> [注册\n(register)]
+[登录\n(auth-login)] --> [密码重置\n(reset-password)]
+
+@enduml

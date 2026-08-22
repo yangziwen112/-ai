@@ -1,0 +1,50 @@
+.page-profile {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding-bottom: 24rpx;
+}
+.profile-header {
+  margin: 24rpx 24rpx 16rpx;
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 12rpx 24rpx rgba(76, 102, 190, 0.18);
+}
+.page-profile .avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+.user-info { flex: 1; }
+.nickname { font-size: 34rpx; font-weight: 700; color: #0f172a; }
+.sub { margin-top: 6rpx; font-size: 24rpx; color: #64748b; }
+.login-btn {
+  background: linear-gradient(135deg, #6b8cff 0%, #7c59c6 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 999rpx;
+}
+.menu-card {
+  margin: 8rpx 24rpx 24rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 10rpx 20rpx rgba(76, 102, 190, 0.15);
+}
+.cell {
+  padding: 28rpx 24rpx;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cell:last-child { border-bottom: none; }
+.cell-text { font-size: 28rpx; color: #0f172a; }
+.admin-cell { background: #f4f8ff; }
+.admin-badge { margin-left: auto; margin-right: 12rpx; padding: 4rpx 10rpx; color: #1d4ed8; background: #dbeafe; border-radius: 999rpx; font-size: 19rpx; }
+.logout-text { color: #ef4444; }
+.cell-arrow { font-size: 32rpx; color: #94a3b8; }

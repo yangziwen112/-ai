@@ -1,0 +1,153 @@
+@startuml 系统总体功能架构图
+
+package "前端页面层（用户界面）" {
+  package "主导航页面" {
+    [首页\nHome]
+    [校园墙\nCampus Wall]
+    [AI助手\nAssistant]
+    [消息\nMessages]
+    [我的\nProfile]
+  }
+  
+  package "认证模块" {
+    [登录\nAuth-Login]
+    [注册\nRegister]
+    [密码重置\nReset-Password]
+  }
+  
+  package "内容浏览模块" {
+    [详情页\nDetail]
+    [订阅\nSubscription]
+    [收藏列表\nFavorites]
+    [浏览历史\nHistory]
+  }
+  
+  package "管理模块(管理员)" {
+    [内容发布\nPublish]
+    [管理员页\nAdmin]
+  }
+}
+
+package "业务逻辑层（功能模块）" {
+  package "用户管理模块" {
+    [用户认证]
+    [用户注册]
+    [密码重置]
+    [用户信息管理]
+    [角色管理]
+  }
+  
+  package "内容管理模块" {
+    [内容列表查询]
+    [标签过滤]
+    [内容搜索]
+    [内容详情获取]
+    [内容发布(管理员)]
+    [内容编辑(管理员)]
+    [内容删除(管理员)]
+  }
+  
+  package "订阅管理模块" {
+    [标签订阅]
+    [来源订阅]
+    [订阅信息查询]
+    [订阅状态更新]
+    [推荐内容生成]
+  }
+  
+  package "收藏历史模块" {
+    [添加收藏]
+    [删除收藏]
+    [收藏列表查询]
+    [浏览历史记录]
+    [删除历史]
+    [清空操作]
+  }
+  
+  package "数据管理模块" {
+    [数据库初始化]
+    [重复数据清理]
+    [多来源自动采集]
+    [资讯标准化与去重]
+  }
+}
+
+package "数据与服务支撑层（技术支持）" {
+  package "云函数(AWS CloudFunc)" {
+    [API网关/路由]
+    [认证服务]
+    [数据查询服务]
+    [业务逻辑处理]
+  }
+  
+  package "Express后端(可选)" {
+    [HTTP路由处理]
+    [API接口实现]
+    [业务逻辑服务]
+    [数据访问层]
+  }
+  
+  database "微信云数据库" {
+    [users集合]
+    [contents集合]
+    [tags集合]
+    [sources集合]
+    [subscriptions集合]
+    [favorites集合]
+    [history集合]
+    [banners集合]
+  }
+  
+  database "MongoDB(备选)" {
+    [用户数据]
+    [内容数据]
+    [元数据]
+    [用户行为数据]
+  }
+  
+  storage "云存储" {
+    [图片资源]
+    [文件存储]
+    [媒体文件]
+  }
+}
+
+' 连接关系
+[首页\nHome] --> [内容列表查询]
+[首页\nHome] --> [标签过滤]
+[校园墙\nCampus Wall] --> [用户信息管理]
+[AI助手\nAssistant] --> [数据查询服务]
+[消息\nMessages] --> [用户信息管理]
+[订阅\nSubscription] --> [标签订阅]
+[订阅\nSubscription] --> [来源订阅]
+[我的\nProfile] --> [用户信息管理]
+[我的\nProfile] --> [收藏列表查询]
+[我的\nProfile] --> [浏览历史记录]
+
+[详情页\nDetail] --> [内容详情获取]
+[收藏列表\nFavorites] --> [添加收藏]
+[收藏列表\nFavorites] --> [删除收藏]
+[浏览历史\nHistory] --> [浏览历史记录]
+
+[内容发布\nPublish] --> [内容发布(管理员)]
+[管理员页\nAdmin] --> [数据库初始化]
+
+' 业务逻辑到服务层
+[用户管理模块] --> [云函数(AWS CloudFunc)]
+[内容管理模块] --> [云函数(AWS CloudFunc)]
+[订阅管理模块] --> [云函数(AWS CloudFunc)]
+[收藏历史模块] --> [云函数(AWS CloudFunc)]
+[数据管理模块] --> [云函数(AWS CloudFunc)]
+
+[用户管理模块] --> [Express后端(可选)]
+[内容管理模块] --> [Express后端(可选)]
+[订阅管理模块] --> [Express后端(可选)]
+
+' 服务层到数据层
+[云函数(AWS CloudFunc)] --> [微信云数据库]
+[云函数(AWS CloudFunc)] --> [云存储]
+[Express后端(可选)] --> [MongoDB(备选)]
+[Express后端(可选)] --> [云存储]
+
+@enduml
+

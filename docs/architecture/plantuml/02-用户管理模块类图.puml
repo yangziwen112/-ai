@@ -1,0 +1,130 @@
+@startuml 用户管理模块类图
+
+class User {
+  - _id: String
+  - username: String
+  - password: String
+  - role: String (student|admin)
+  - nickname: String
+  - idCardLast4: String
+  - avatarUrl: String
+  - createdAt: Number
+  - isActive: Boolean
+  --
+  + login(username, password, role): User
+  + register(userData): Boolean
+  + resetPassword(newPassword): Boolean
+  + updateProfile(data): Boolean
+  + verifyIdentity(idCard): Boolean
+  + getUserInfo(): UserInfo
+}
+
+class Subscription {
+  - _id: String
+  - userId: String
+  - tagIds: Array<String>
+  - sourceIds: Array<String>
+  - updatedAt: Number
+  --
+  + addTag(tagId): Boolean
+  + removeTag(tagId): Boolean
+  + getTags(): Array<Tag>
+  + addSource(sourceId): Boolean
+  + removeSource(sourceId): Boolean
+  + getSources(): Array<Source>
+  + updateTags(tagIds): Boolean
+  + updateSources(sourceIds): Boolean
+}
+
+class Tag {
+  - _id: String
+  - name: String
+  - icon: String
+  - description: String
+  --
+  + getName(): String
+  + getDescription(): String
+}
+
+class Source {
+  - _id: String
+  - name: String
+  - icon: String
+  - description: String
+  --
+  + getName(): String
+  + getDescription(): String
+}
+
+class Content {
+  - _id: String
+  - title: String
+  - summary: String
+  - description: String
+  - tags: Array<String>
+  - sourceId: String
+  - publishTime: Number
+  - createdBy: String
+  - publishedBy: String
+  - viewCount: Number
+  - favoriteCount: Number
+  --
+  + publish(): Boolean
+  + edit(data): Boolean
+  + delete(): Boolean
+  + getDetail(): ContentDetail
+}
+
+class Favorite {
+  - _id: String
+  - userId: String
+  - contentId: String
+  - ts: Number
+  --
+  + toggle(): Boolean
+  + remove(): Boolean
+}
+
+class History {
+  - _id: String
+  - userId: String
+  - contentId: String
+  - ts: Number
+  - duration: Number
+  --
+  + record(contentId, duration): Boolean
+  + remove(): Boolean
+  + clearAll(): Boolean
+}
+
+User "1" -- "1" Subscription : owns >
+User "1" -- "*" Favorite : creates >
+User "1" -- "*" History : creates >
+User "1" -- "*" Content : publishes > (admin only)
+Subscription "1" -- "*" Tag : subscribes to >
+Subscription "1" -- "*" Source : subscribes to >
+Content "*" -- "*" Tag : has >
+Content "*" -- "*" Source : belongs to >
+Favorite "*" -- "1" Content : references >
+History "*" -- "1" Content : references >
+
+note right of User
+  用户核心实体
+  包含认证和基本信息
+  两种角色: 学生/管理员
+end note
+
+note right of Subscription
+  订阅记录
+  与用户一对一绑定
+  记录关注的标签和来源
+end note
+
+note right of Content
+  内容实体
+  管理员发布
+  学生可见/收藏/浏览
+end note
+
+@enduml
+

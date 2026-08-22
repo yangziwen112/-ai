@@ -1,0 +1,99 @@
+@startuml 浏览和收藏内容时序图
+
+actor 用户 as User
+participant "首页UI\n(home)" as UI
+participant "收藏管理\n(favoriteManager)" as Fav
+participant "请求工具\n(request.js)" as Request
+participant "云函数\n(api)" as Cloud
+database "云数据库" as CloudDB
+
+User -> UI: 下拉刷新
+activate UI
+
+UI -> Request: callApi('feed/recommend',\n{page, pageSize})
+activate Request
+
+Request -> Cloud: 调用云函数
+activate Cloud
+
+Cloud -> CloudDB: 查询内容列表\n(分页/过滤)
+activate CloudDB
+CloudDB --> Cloud: 返回列表
+deactivate CloudDB
+
+Cloud --> Request: 返回数据
+deactivate Cloud
+
+Request --> UI: 返回内容列表
+deactivate Request
+
+UI -> Fav: 更新收藏状态\n(从本地缓存)
+activate Fav
+Fav --> UI: 返回状态映射
+deactivate Fav
+
+UI --> User: 显示内容
+deactivate UI
+
+User -> UI: 点击内容卡片
+activate UI
+
+UI -> Request: 记录历史\nrecordHistory()
+activate Request
+Request -> Cloud: callApi('history/record',\n{contentId, duration})
+activate Cloud
+Cloud -> CloudDB: 添加历史记录
+activate CloudDB
+CloudDB --> Cloud: 成功
+deactivate CloudDB
+Cloud --> Request: 返回
+deactivate Cloud
+Request --> UI: 返回
+deactivate Request
+
+UI --> User: 跳转详情页
+deactivate UI
+
+User -> UI: 返回到首页
+activate UI
+deactivate UI
+
+User -> UI: 点击收藏❤️
+activate UI
+
+UI -> Fav: toggleFav(contentId)
+activate Fav
+
+Fav -> Request: callApi('user/favorite/toggle',\n{contentId})
+activate Request
+
+Request -> Cloud: 调用云函数
+activate Cloud
+
+Cloud -> CloudDB: 查询收藏记录
+activate CloudDB
+CloudDB --> Cloud: 返回记录
+deactivate CloudDB
+
+Cloud -> Cloud: 判断是否已收藏
+Cloud -> CloudDB: 更新收藏(添加或删除)
+activate CloudDB
+CloudDB --> Cloud: 返回成功
+deactivate CloudDB
+
+Cloud --> Request: 返回{ok: true}
+deactivate Cloud
+
+Request --> Fav: 返回结果
+deactivate Request
+
+Fav -> Fav: 更新本地缓存\nfavoriteMap
+Fav --> UI: 返回新状态
+deactivate Fav
+
+UI -> UI: 更新UI\n切换❤️状态
+UI --> User: 显示Toast提示
+deactivate UI
+
+@enduml
+
