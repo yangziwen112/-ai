@@ -160,6 +160,7 @@ pages/
 - [项目总览](docs/项目总览.md)：统一维护入口，汇总产品、AI、采集器、视频处理和发布说明。
 - [个人校园聚合平台实践指南](docs/personal-ai-campus-platform-guide.md)：从零搭建和维护平台的实践文档。
 - [创新方向与未来路线图](docs/innovation-and-roadmap.md)：项目差异化能力、个人特色和未来突破方向。
+- [相关项目研究与高级实践](docs/advanced-practice-research.md)：公开项目研究、Token 优化、评测和可观测性方法。
 - [微信视频号内容处理 Skill](docs/wechat-video-skill.md)：详情整理、解密和本地转写的安全流程。
 - [GitHub 发布说明](docs/github-release.md)：公开仓库的目录、脱敏和发布检查。
 
