@@ -13,6 +13,7 @@
 
     <text class="title">{{item.title}}</text>
     <text class="summary" wx:if="{{item.summary}}">{{item.summary}}</text>
+    <text class="action-hint" wx:if="{{item.actionItem}}">下一步：{{item.actionItem}}</text>
 
     <view class="card-bottom">
       <view class="tags" wx:if="{{item.tags && item.tags.length}}">

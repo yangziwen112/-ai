@@ -1,9 +1,9 @@
 const CATEGORY_KEYWORDS = {
   notice: /通知|公告|公示|安排|教务|选课|放假|校历/,
-  competition: /竞赛|比赛|挑战杯|大创|创新创业|建模/,
+  competition: /竞赛|比赛|三创赛|电子商务挑战赛|挑战杯|大创|创新创业|创新大赛|互联网\+|建模/,
   academic: /讲座|论坛|学术|研讨|报告会|科研/,
   recruit: /就业|招聘|实习|宣讲|双选|选调/,
-  certification: /考试|考证|教资|教师资格|四六级|普通话|计算机等级|考研/,
+  certification: /考试|考证|教资|教师资格|四六级|英语四级|英语六级|普通话|计算机等级|考研|研究生招生|初试|复试/,
   sports: /文体|体育|文艺|演出|社团|联赛|音乐会/,
   volunteer: /志愿|公益|社会实践|支教/,
   activity: /活动|招募|校园生活|交流/
@@ -40,6 +40,10 @@ function normalizeEvidence(item) {
     startTime: Number(item.startTime || 0),
     endTime: Number(item.endTime || 0),
     deadline: Number(item.deadline || item.registrationEndTime || 0),
+    audience: String(item.audience || '').slice(0, 80),
+    actionItem: String(item.actionItem || '').slice(0, 160),
+    freshnessScore: Number(item.freshnessScore || 0),
+    evidenceScore: Number(item.evidenceScore || 0),
     sourceName: item.sourceName || item.source || '校园信息平台',
     sourceUrl,
     isOfficial: item.isOfficial !== false

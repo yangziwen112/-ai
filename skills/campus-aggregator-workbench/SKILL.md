@@ -15,6 +15,9 @@ description: "维护校园聚合信息小程序及其 AI、采集、内容审核
 - 微信视频号详情、下载、解密和本地转写：读取 `references/wechat-video.md`，并优先复用已安装的 `wechat-latest-video-transcriber` Skill。
 - GitHub 发布和文档组织：读取 `references/github-release.md`。
 - 高级 RAG、评测、上下文压缩和可观测性：读取 `docs/advanced-practice-research.md`。
+- 教资、考研、四六级：优先读取 `../campus-teacher-cert/SKILL.md`。
+- 三创赛、创新创业、挑战杯：优先读取 `../campus-competition-tracker/SKILL.md`。
+- 来源核验与数据质量：优先读取 `../campus-source-governance/SKILL.md`。
 
 ## 不可违反的约束
 

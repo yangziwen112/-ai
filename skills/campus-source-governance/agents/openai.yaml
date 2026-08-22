@@ -1,0 +1,4 @@
+interface:
+  display_name: "校园来源治理 Skill"
+  short_description: "核验来源时效相关性并保护公开数据边界"
+  default_prompt: "审核采集内容的真实性、时效、重复、学生相关性和隐私。"

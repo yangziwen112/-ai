@@ -10,6 +10,7 @@ const db = cloud.database()
 const MAX_ITEMS_PER_SOURCE = Number(process.env.CRAWLER_MAX_ITEMS || 20)
 const REQUEST_TIMEOUT = Number(process.env.CRAWLER_TIMEOUT || 15000)
 const DAY_MS = 24 * 60 * 60 * 1000
+const { DEFAULT_SOURCES } = require('./lib/source-catalog')
 
 const STUDENT_KEYWORDS = /报名|申报|申请|竞赛|比赛|青苗|大创|挑战杯|创新创业|教师资格|教资|考试|考场|场地安排|准考证|四六级|普通话|选课|补考|缓考|奖学金|助学金|评优|推免|保研|实习|招聘|就业|讲座|培训|招募|志愿|社会实践|校园活动|课程|教学安排|学生|本科生|研究生/
 const LOW_VALUE_KEYWORDS = /学习贯彻|党委理论|工作会议|领导班子|调研座谈|党建工作|主题教育|代表团来访|校领导会见|新闻联播|媒体聚焦|工作部署/
@@ -32,61 +33,6 @@ function isTrustedTimerEvent(event, context) {
   const isTimer = event?.Type === 'Timer' || event?.type === 'timer' || event?.TriggerName === 'dailyCrawl'
   return isTimer && !wxContext.OPENID
 }
-
-const DEFAULT_SOURCES = [
-  {
-    id: 'muc-main',
-    name: '中央民族大学',
-    listUrl: 'https://www.muc.edu.cn/',
-    baseUrl: 'https://www.muc.edu.cn/',
-    linkPattern: /\/info\/\d+\/\d+\.htm$/i,
-    defaultCategory: 'notice',
-    campus: 'all',
-    official: true,
-    groups: ['all', 'muc-home'],
-    recencyDays: 7,
-    requireStudentRelevance: true
-  },
-  {
-    id: 'muc-jwc',
-    name: '中央民族大学教务处',
-    listUrl: 'https://jw.muc.edu.cn/tzgg.htm',
-    baseUrl: 'https://jw.muc.edu.cn/',
-    linkPattern: /\/info\/\d+\/\d+\.htm$/i,
-    defaultCategory: 'notice',
-    campus: 'all',
-    official: true,
-    groups: ['all', 'muc-home', 'competition'],
-    recencyDays: 7,
-    requireStudentRelevance: true
-  },
-  {
-    id: 'muc-info-engineering',
-    name: '中央民族大学信息工程学院',
-    listUrl: 'https://xingong.muc.edu.cn/jyjx/bksjx.htm',
-    baseUrl: 'https://xingong.muc.edu.cn/',
-    linkPattern: /\.htm$/i,
-    defaultCategory: 'competition',
-    campus: 'all',
-    official: true,
-    groups: ['all', 'info-engineering', 'competition'],
-    recencyDays: 7,
-    requireStudentRelevance: true
-  },
-  {
-    id: 'ntce',
-    name: '中国教育考试网·中小学教师资格考试',
-    listUrl: 'https://ntce.neea.edu.cn/html1/category/1507/1148-1.htm',
-    baseUrl: 'https://ntce.neea.edu.cn/',
-    linkPattern: /\/html1\/report\/\d+\/\d+-1\.htm$/i,
-    defaultCategory: 'certification',
-    campus: 'all',
-    official: true,
-    groups: ['all', 'teacher-cert'],
-    recencyDays: 30,
-    requireStudentRelevance: true
-  }
-]
 
 function getSources(group = 'all') {
   let sources = DEFAULT_SOURCES
@@ -250,9 +196,9 @@ function extractMainText(html) {
 function categorize(title, body, fallback = 'notice') {
   const text = `${title} ${body}`
   if (/招聘|就业|实习|宣讲|双选会|人才引进|选调/.test(text)) return 'recruit'
-  if (/竞赛|比赛|大创|创新创业|挑战杯|建模/.test(text)) return 'competition'
+  if (/竞赛|比赛|三创赛|电子商务挑战赛|创新大赛|大创|创新创业|挑战杯|建模|互联网\+/.test(text)) return 'competition'
   if (/讲座|论坛|学术|报告会|研讨会|科研|学术会议/.test(text)) return 'academic'
-  if (/考试|考证|教师资格|教资|四六级|普通话|报名|查分/.test(text)) return 'certification'
+  if (/考试|考证|教师资格|教资|四六级|英语四级|英语六级|考研|研究生招生|普通话|报名|查分/.test(text)) return 'certification'
   if (/体育|文艺|演出|社团|文化节|联赛|展览|音乐会/.test(text)) return 'sports'
   if (/志愿|公益|社会实践|支教|普法实践/.test(text)) return 'volunteer'
   if (/活动|招募|校园新闻|交流|实践团/.test(text)) return 'activity'
@@ -281,6 +227,11 @@ function extractLocation(text = '') {
 }
 
 function extractAction(text = '', category = '') {
+  if (/三创赛|电子商务挑战赛/.test(text)) return '确认校赛/省赛批次、团队信息和作品提交要求'
+  if (/挑战杯|创新大赛|互联网\+/.test(text)) return '确认赛道、申报材料、校内截止时间和提交入口'
+  if (/考研|研究生招生|初试|复试/.test(text)) return '核对招生章程、报名时间、考试科目和目标院校要求'
+  if (/教师资格|教资/.test(text)) return '核对报名、缴费、准考证和考试地点等节点'
+  if (/四六级|英语四级|英语六级/.test(text)) return '核对报名批次、准考证和考试时间'
   if (/报名|申报|申请/.test(text)) return '按原文要求完成报名或材料提交'
   if (/考场|场地安排|准考证/.test(text)) return '核对考点、时间和所需证件'
   if (category === 'competition') return '查看参赛条件、赛程和报名方式'
@@ -305,7 +256,7 @@ function buildImportantNotices(title, body, schedule, category) {
   const location = extractLocation(text)
   if (location) notices.push(`地点：${location}`)
   if (/身份证|学生证|准考证/.test(text)) notices.push('请提前核对并携带要求的证件')
-  if (category === 'competition') notices.push('以主办方原文中的参赛资格和报名入口为准')
+  if (category === 'competition') notices.push('以主办方原文中的参赛资格、批次和报名入口为准')
   return [...new Set(notices)].slice(0, 3)
 }
 
@@ -330,10 +281,29 @@ function makeTags(category, title) {
   }
   const tags = [labels[category] || '校园资讯']
   if (/教师资格|教资/.test(title)) tags.push('教资')
-  if (/四六级/.test(title)) tags.push('四六级')
+  if (/四六级|英语四级|英语六级/.test(title)) tags.push('四六级')
+  if (/考研|研究生招生|初试|复试/.test(title)) tags.push('考研')
+  if (/三创赛|电子商务挑战赛/.test(title)) tags.push('三创赛')
+  if (/挑战杯/.test(title)) tags.push('挑战杯')
+  if (/创新大赛|互联网\+|创新创业/.test(title)) tags.push('创新创业')
   if (/丰台/.test(title)) tags.push('丰台校区')
   if (/海淀/.test(title)) tags.push('海淀校区')
   return tags
+}
+
+function calculateFreshnessScore(publishTime, recencyDays) {
+  if (!publishTime) return 0.2
+  const age = Math.max(0, Date.now() - publishTime) / DAY_MS
+  return Math.max(0, Math.min(1, 1 - age / Math.max(1, Number(recencyDays || 30))))
+}
+
+function calculateEvidenceScore(source, title, body, publishTime, sourceUrl) {
+  let score = source.official !== false ? 0.45 : 0.2
+  if (/^https:\/\//i.test(sourceUrl)) score += 0.15
+  if (title && title.length >= 6) score += 0.1
+  if (body && body.length >= 120) score += 0.15
+  if (publishTime) score += 0.1
+  return Number(Math.min(1, score).toFixed(3))
 }
 
 function hash(value) {
@@ -347,6 +317,7 @@ async function ensureSource(source) {
     name: source.name,
     homepage: source.baseUrl || source.listUrl,
     official: source.official !== false,
+    profile: source.profile || 'campus-official',
     crawlerEnabled: true,
     crawlerGroups: source.groups || ['all'],
     updatedAt: Date.now()
@@ -415,6 +386,12 @@ async function crawlSource(source, options = {}) {
         tags: makeTags(category, title),
         publishTime,
         sourcePublishedAt: publishTime,
+        sourceProfile: source.profile || 'campus-official',
+        sourceOfficial: source.official !== false,
+        audience: extractAudience(`${title} ${body}`),
+        actionItem: extractAction(`${title} ${body}`, category),
+        freshnessScore: calculateFreshnessScore(publishTime, recencyDays),
+        evidenceScore: calculateEvidenceScore(source, title, body, publishTime, link.url),
         deadline: schedule.deadline,
         startTime: schedule.startTime,
         importantNotices: buildImportantNotices(title, body, schedule, category),

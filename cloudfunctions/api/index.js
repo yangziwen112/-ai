@@ -652,6 +652,10 @@ function normalizeOfficialFeedItem(doc) {
     sortTime: Number(item.publishTime || doc.createdAt || 0),
     scheduleItems: scheduleItems.slice(0, 3),
     importantNotices,
+    audience: String(doc.audience || '').slice(0, 80),
+    actionItem: String(doc.actionItem || '').slice(0, 160),
+    freshnessScore: Number(doc.freshnessScore || 0),
+    evidenceScore: Number(doc.evidenceScore || 0),
     autoUpdated: doc.ingestType === 'crawler'
   }
 }

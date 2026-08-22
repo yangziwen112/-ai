@@ -1,0 +1,4 @@
+interface:
+  display_name: "大学生竞赛追踪 Skill"
+  short_description: "追踪三创赛创新创业和挑战杯真实节点"
+  default_prompt: "提取竞赛赛道、对象、报名、校赛和作品提交要求。"

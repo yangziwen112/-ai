@@ -5,6 +5,9 @@ const { extractKeywords, inferCategory } = require('../lib/services/repository')
 
 async function main() {
   assert.equal(inferCategory('四六级报名时间'), 'certification')
+  assert.equal(inferCategory('三创赛报名截止时间'), 'competition')
+  assert.equal(inferCategory('研究生招生初试报名'), 'certification')
+  assert.equal(inferCategory('英语四级考试报名'), 'certification')
   assert.ok(extractKeywords('请帮我看看最近的校园招聘').length > 0)
   assert.equal(deterministicIntent('讲座什么时候开始', {}).route, 'upcoming')
   assert.equal(deterministicIntent('怎么使用民大通收藏功能', {}).route, 'platform_help')

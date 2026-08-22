@@ -16,6 +16,7 @@
 .time { flex-shrink: 0; }
 .title { display: -webkit-box; overflow: hidden; color: #172033; font-size: 29rpx; line-height: 1.42; font-weight: 680; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .summary { display: -webkit-box; overflow: hidden; margin-top: 11rpx; color: #64748b; font-size: 23rpx; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.action-hint { display: -webkit-box; overflow: hidden; margin-top: 10rpx; color: #2563eb; font-size: 22rpx; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
 .card-bottom { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 18rpx; gap: 14rpx; }
 .tags { flex: 1; min-width: 0; display: flex; gap: 10rpx; overflow: hidden; white-space: nowrap; }
 .tag { color: #78879b; font-size: 20rpx; }

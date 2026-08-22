@@ -9,8 +9,14 @@ Page({
     showCrawlerJobs: false,
     crawlerJobs: [
       { id: 'teacher-cert', title: '更新教资信息', desc: '考试报名、准考证、考场及成绩安排', icon: '证', days: 30 },
+      { id: 'graduate-exam', title: '更新考研信息', desc: '招生简章、报名、初试与复试动态', icon: '研', days: 30 },
+      { id: 'exam', title: '更新四六级信息', desc: '报名批次、准考证、考试与成绩节点', icon: '英', days: 60 },
       { id: 'muc-home', title: '更新民大主页', desc: '只保留近7天与学生直接相关的通知', icon: '校', days: 7 },
       { id: 'competition', title: '更新竞赛信息', desc: '近7天报名、申报、赛程及结果发布', icon: '赛', days: 7 },
+      { id: 'three-innovation', title: '更新三创赛', desc: '三创赛报名、校赛批次和作品提交通知', icon: '创', days: 30 },
+      { id: 'innovation-entrepreneurship', title: '更新创新创业大赛', desc: '创新大赛及互联网+相关赛道动态', icon: '新', days: 30 },
+      { id: 'challenge-cup', title: '更新挑战杯', desc: '挑战杯申报、赛程和评审安排', icon: '杯', days: 30 },
+      { id: 'career', title: '更新就业实习', desc: '国家大学生就业服务平台最新信息', icon: '职', days: 14 },
       { id: 'info-engineering', title: '更新信息工程学院', desc: '本科教学、青苗计划和学院竞赛', icon: '信', days: 7 }
     ],
     crawlerStatus: null,

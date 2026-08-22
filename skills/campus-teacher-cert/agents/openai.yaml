@@ -1,0 +1,4 @@
+interface:
+  display_name: "教资与考证资讯 Skill"
+  short_description: "采集教资考研四六级官方节点并标准化展示"
+  default_prompt: "核验考试来源，提取报名、准考证、考场、成绩和截止时间。"
