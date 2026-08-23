@@ -5,6 +5,7 @@ const WorkflowState = Annotation.Root({
   imageUrls: Annotation({ reducer: (_, value) => value, default: () => [] }),
   userContext: Annotation({ reducer: (_, value) => value, default: () => ({}) }),
   history: Annotation({ reducer: (_, value) => value, default: () => [] }),
+  compressedHistory: Annotation({ reducer: (_, value) => value, default: () => [] }),
   safety: Annotation({ reducer: (_, value) => value, default: () => ({}) }),
   now: Annotation({ reducer: (_, value) => value, default: () => Date.now() }),
   intent: Annotation({ reducer: (_, value) => value, default: () => ({}) }),

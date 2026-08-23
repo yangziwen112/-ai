@@ -9,20 +9,30 @@ const CATEGORY_KEYWORDS = {
   activity: /活动|招募|校园生活|交流/
 }
 
+const CERTIFICATION_CATEGORIES = ['certification', 'teacher-cert', 'teacher_cert', 'teacher', 'exam']
+const SEARCH_TERMS = [
+  '教师资格考试', '教师资格', '教资', '准考证', '考场安排', '报名时间', '考试时间',
+  '笔试', '面试', '普通话', '四六级', '英语四级', '英语六级', '考研', '研究生招生',
+  '初试', '复试', '考试', '报名', '成绩'
+]
+
 function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 function extractKeywords(query) {
   const stopWords = new Set(['请问', '一下', '关于', '怎么', '如何', '什么', '哪些', '有没有', '最近', '最新', '我想', '帮我', '可以'])
-  return [...new Set(String(query).split(/[\s,，。？！?、:：]+/)
+  const text = String(query || '')
+  const matchedTerms = SEARCH_TERMS.filter(term => text.includes(term))
+  return [...new Set(matchedTerms.concat(text.split(/[\s,，。？！?、:：]+/))
     .map(item => item.trim())
     .filter(item => item.length >= 2 && !stopWords.has(item)))]
     .slice(0, 4)
 }
 
 function inferCategory(query) {
-  return Object.keys(CATEGORY_KEYWORDS).find(key => CATEGORY_KEYWORDS[key].test(query)) || ''
+  const priority = ['certification', 'competition', 'recruit', 'academic', 'volunteer', 'sports', 'activity', 'notice']
+  return priority.find(key => CATEGORY_KEYWORDS[key].test(query)) || ''
 }
 
 function normalizeEvidence(item) {
@@ -52,7 +62,13 @@ function normalizeEvidence(item) {
 
 function isDemoPlaceholder(item) {
   const text = [item?.title, item?.summary, item?.description, item?.sourceUrl, item?.linkUrl].filter(Boolean).join(' ')
-  return /example\.edu|example\.com|picsum\.photos/i.test(text) || ['2024年春季校园招聘会', 'ACM程序设计竞赛', '人工智能前沿技术讲座', '校园足球联赛'].includes(String(item?.title || '').trim())
+  return /example\.edu|example\.com|picsum\.photos/i.test(text) || (item?.ingestType !== 'crawler' && ['2024年春季校园招聘会', 'ACM程序设计竞赛', '人工智能前沿技术讲座', '校园足球联赛'].includes(String(item?.title || '').trim()))
+}
+
+function categoryMatches(actual, requested) {
+  if (!requested) return true
+  if (requested === 'certification') return CERTIFICATION_CATEGORIES.includes(String(actual || '').toLowerCase())
+  return String(actual || '').toLowerCase() === String(requested).toLowerCase()
 }
 
 function createRepository(db) {
@@ -61,8 +77,8 @@ function createRepository(db) {
   async function searchContents(query, intent = {}) {
     const keywords = extractKeywords(query)
     const category = intent.category || inferCategory(query)
-    const conditions = [{ status: 'published' }]
-    if (category) conditions.push({ category: category === 'certification' ? _.in(['certification', 'teacher-cert']) : category })
+    const conditions = [{ status: _.in(['published', 'open']) }]
+    if (category) conditions.push({ category: category === 'certification' ? _.in(CERTIFICATION_CATEGORIES) : category })
     if (keywords.length) {
       const patterns = keywords.flatMap(keyword => {
         const regexp = escapeRegExp(keyword).slice(0, 40)
@@ -77,22 +93,27 @@ function createRepository(db) {
     }
 
     const where = conditions.length === 1 ? conditions[0] : _.and(...conditions)
-    const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(8).get()
+    const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(30).get()
     return (res.data || []).filter(item => !isDemoPlaceholder(item)).map(normalizeEvidence)
   }
 
-  async function getUpcoming(intent = {}) {
+  async function getUpcoming(intent = {}, query = '') {
     const now = Date.now()
-    const res = await db.collection('contents').where({ status: 'published' }).orderBy('publishTime', 'desc').limit(50).get()
-    return (res.data || []).filter(item => !isDemoPlaceholder(item))
+    const category = intent.category || inferCategory(query)
+    const where = { status: _.in(['published', 'open']) }
+    if (category) where.category = category === 'certification' ? _.in(CERTIFICATION_CATEGORIES) : category
+    const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(100).get()
+    const active = (res.data || []).filter(item => !isDemoPlaceholder(item))
       .map(normalizeEvidence)
       .filter(item => item.deadline > now || item.startTime > now)
-      .filter(item => !intent.category || item.category === intent.category || (intent.category === 'certification' && item.category === 'teacher-cert'))
+      .filter(item => categoryMatches(item.category, category))
       .sort((a, b) => Math.min(a.deadline || Infinity, a.startTime || Infinity) - Math.min(b.deadline || Infinity, b.startTime || Infinity))
       .slice(0, 8)
+    if (active.length || !query) return active
+    return searchContents(query, { ...intent, category })
   }
 
   return { searchContents, getUpcoming }
 }
 
-module.exports = { createRepository, extractKeywords, inferCategory }
+module.exports = { createRepository, extractKeywords, inferCategory, categoryMatches, CERTIFICATION_CATEGORIES }

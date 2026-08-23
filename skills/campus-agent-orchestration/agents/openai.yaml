@@ -1,0 +1,4 @@
+interface:
+  display_name: "校园 Agent 编排"
+  short_description: "维护意图路由、边界响应、工具权限与质量审核"
+  default_prompt: "请按校园 Agent 编排规范检查并优化当前工作流。"

@@ -137,7 +137,7 @@ Page({
   },
 
   async removeDemoContent() {
-    const modal = await new Promise(resolve => wx.showModal({ title: '确认清理演示数据', content: '只会删除 example.edu、picsum.photos 和内置演示标题，不会删除采集或用户真实内容。', confirmText: '确认清理', success: resolve }))
+    const modal = await new Promise(resolve => wx.showModal({ title: '确认清理历史演示数据', content: '只会删除历史示例链接、随机图片、旧年份演示标题和演示校园动态，不会删除真实采集或用户发布内容。', confirmText: '确认清理', success: resolve }))
     if (!modal.confirm) return
     wx.showLoading({ title: '正在清理', mask: true })
     try {

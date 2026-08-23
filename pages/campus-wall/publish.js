@@ -61,6 +61,7 @@ Page({
           images,
           anonymous: draftData.anonymous || false
         })
+        if (draftData.category === 'market') setTimeout(() => this.syncMarketContent(this.data.marketDetails), 0)
         toast('已加载草稿')
       }
     } catch (error) {
@@ -70,6 +71,26 @@ Page({
 
   onContentChange(e) {
     this.setData({ content: e.detail.value })
+  },
+
+  removeMarketSpecBlock(content = this.data.content) {
+    return String(content || '').replace(/\n?【二手书规格】[\s\S]*?【\/二手书规格】/g, '').trim()
+  },
+
+  syncMarketContent(details = this.data.marketDetails) {
+    if (this.data.category !== 'market') return
+    const cleanContent = this.removeMarketSpecBlock()
+    const values = details || {}
+    const lines = [
+      `数量：${String(values.quantity || '').trim() || '待填写'}`,
+      `新旧程度：${String(values.condition || '').trim() || '待填写'}`,
+      `位置：${String(values.location || '').trim() || '待填写'}`,
+      `交易方式：${String(values.tradeMethod || '').trim() || '待填写'}`,
+      `原因：${String(values.reason || '').trim() || '待填写'}`
+    ]
+    const hasValue = Object.values(values).some(value => String(value || '').trim())
+    const specBlock = hasValue ? `【二手书规格】\n${lines.join('\n')}\n【/二手书规格】` : ''
+    this.setData({ content: [cleanContent, specBlock].filter(Boolean).join('\n\n') })
   },
 
   onCategoryChange(e) {
@@ -83,7 +104,9 @@ Page({
       custom: '请输入你想发布的校园内容…',
       other: '请输入你想发布的校园内容…'
     }
-    this.setData({ category, contentPlaceholder: placeholders[category] || placeholders.other })
+    const nextData = { category, contentPlaceholder: placeholders[category] || placeholders.other }
+    if (category !== 'market') nextData.content = this.removeMarketSpecBlock()
+    this.setData(nextData)
   },
 
   onAnonymousChange(e) {
@@ -96,11 +119,16 @@ Page({
 
   onMarketTypeChange(e) {
     this.setData({ category: 'market', marketType: e.currentTarget.dataset.type || 'general', contentPlaceholder: '请写明书名、版本、价格和使用情况…' })
+    setTimeout(() => this.syncMarketContent(this.data.marketDetails), 0)
   },
 
   onMarketDetailChange(e) {
     const field = e.currentTarget.dataset.field
-    if (field) this.setData({ [`marketDetails.${field}`]: e.detail.value })
+    if (field) {
+      const marketDetails = { ...this.data.marketDetails, [field]: e.detail.value }
+      this.setData({ marketDetails })
+      this.syncMarketContent(marketDetails)
+    }
   },
 
   async chooseImage() {

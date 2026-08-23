@@ -372,6 +372,17 @@
   transform: scale(0.98);
 }
 
+.market-sync-tip {
+  display: block;
+  margin-top: 14rpx;
+  padding: 12rpx 16rpx;
+  color: #7c5a22;
+  background: #fff8e8;
+  border-radius: 10rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
 .market-image-tip { display: block; margin-top: 12rpx; color: rgba(255,255,255,.88); font-size: 21rpx; line-height: 1.5; }
 .market-format { margin-bottom: 20rpx; padding: 20rpx; background: #fff8e8; border: 1rpx solid #f2d9a7; border-radius: 14rpx; }
 .market-format-title, .market-format-line { display: block; }

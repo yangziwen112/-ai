@@ -4,7 +4,7 @@
   "description": "民大通 LangGraph STAR 多智能体 RAG 工作流",
   "main": "index.js",
   "scripts": {
-    "test": "node test/workflow.test.js && node test/quality.test.js"
+    "test": "node test/workflow.test.js && node test/quality.test.js && node test/context.test.js && node test/fast-path.test.js"
   },
   "keywords": [
     "rag",

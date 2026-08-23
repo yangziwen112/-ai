@@ -236,7 +236,7 @@ exports.main = async (event, context) => {
         return await initSeed()
       
       case 'dev/createSampleData':
-        if (!(await isAdminAccount(data?.appUserId, userId))) return { error: 'permission_denied', message: '仅管理员可创建示例数据' }
+        if (!(await isAdminAccount(data?.appUserId, userId))) return { error: 'permission_denied', message: '仅管理员可执行此维护操作' }
         return await createSampleData()
       case 'dev/removeDemoContent':
         if (!(await isAdminAccount(data?.appUserId, userId))) return { error: 'permission_denied', message: '仅管理员可清理演示数据' }
@@ -603,7 +603,7 @@ async function listCampusFeed({ page = 1, pageSize = 10, category = 'all', q = '
           .orderBy('createdAt', 'desc')
           .limit(fetchLimit)
           .get()
-          .then(res => (res.data || []).map(normalizeCommunityFeedItem))
+          .then(res => (res.data || []).filter(post => !isDemoCampusPost(post)).map(normalizeCommunityFeedItem))
           .catch(error => {
             console.warn('聚合流读取校园互动失败:', error.message)
             return []
@@ -675,6 +675,11 @@ function isDemoPlaceholder(doc) {
   const text = [doc?.title, doc?.summary, doc?.description, doc?.sourceUrl, doc?.linkUrl].filter(Boolean).join(' ')
   if (/example\.edu|example\.com|picsum\.photos/i.test(text)) return true
   return ['2024年春季校园招聘会', 'ACM程序设计竞赛', '人工智能前沿技术讲座', '校园足球联赛'].includes(String(doc?.title || '').trim()) && doc?.ingestType !== 'crawler'
+}
+
+function isDemoCampusPost(post) {
+  const text = [post?.content, post?.customTag, post?.marketDetails?.reason].filter(Boolean).join(' ')
+  return /example\.(edu|com)|picsum\.photos|2024年春季校园招聘会|ACM程序设计竞赛|人工智能前沿技术讲座|校园足球联赛/i.test(text)
 }
 
 function normalizeCommunityFeedItem(post) {
@@ -2215,13 +2220,7 @@ async function ingestContent({ payload, headers, userId }) {
 }
 
 async function initSeed() {
-  try {
-    console.log('initSeed 已废弃，请使用 createSampleData')
-    return { ok: false, error: '请使用 createSampleData 创建示例数据' }
-  } catch (error) {
-    console.error('初始化种子数据失败:', error)
-    return { ok: false, error: '初始化失败' }
-  }
+  return { ok: false, error: 'demo_data_disabled', message: '示例数据初始化已停用，请使用真实采集器或管理员发布' }
 }
 
 async function cleanDuplicates() {
@@ -2279,241 +2278,16 @@ async function cleanDuplicates() {
 }
 
 async function createSampleData() {
-  try {
-    if (process.env.ALLOW_DEMO_DATA !== 'true') {
-      return { ok: false, error: 'demo_data_disabled', message: '演示数据已禁用，请使用真实采集器或管理员发布功能' }
-    }
-    console.log('开始创建示例数据')
-    const now = Date.now()
-    
-    const tags = [
-      { name: '竞赛', icon: '🏆', description: 'ACM、数学建模、创新创业等各类竞赛' },
-      { name: '学术讲座', icon: '🎓', description: '学术报告、前沿技术分享、专家讲座' },
-      { name: '招聘', icon: '💼', description: '企业宣讲、校园招聘、实习机会' },
-      { name: '文体活动', icon: '⚽', description: '体育赛事、文艺演出、社团活动' },
-      { name: '志愿服务', icon: '🤝', description: '公益活动、社会实践、志愿者招募' },
-      { name: '工作坊', icon: '🛠️', description: '技能培训、动手实践、经验分享' }
-    ]
-    
-    for (const tag of tags) {
-      try {
-        const existing = await db.collection('tags').where({ name: tag.name }).get()
-        if (existing.data && existing.data.length > 0) {
-          continue
-        }
-        await db.collection('tags').add({ data: tag })
-      } catch (error) {
-        console.error('标签创建失败:', error)
-      }
-    }
-    
-    const sources = [
-      { name: '信息工程学院', icon: '💻', description: '计算机与信息技术相关通知' },
-      { name: '就业指导中心', icon: '💼', description: '招聘、实习、就业信息' },
-      { name: '校团委', icon: '🎯', description: '学生活动、志愿服务' },
-      { name: '教务处', icon: '📚', description: '教学、选课、考试通知' },
-      { name: '图书馆', icon: '📖', description: '讲座、资源、借阅服务' },
-      { name: '体育部', icon: '⚽', description: '体育赛事、健身活动' }
-    ]
-    
-    for (const source of sources) {
-      try {
-        const existing = await db.collection('sources').where({ name: source.name }).get()
-        if (existing.data && existing.data.length > 0) {
-          continue
-        }
-        await db.collection('sources').add({ data: source })
-      } catch (error) {
-        console.error('来源创建失败:', error)
-      }
-    }
-    
-    const banners = [
-      {
-        title: '2024年春季校园招聘会',
-        image: 'https://picsum.photos/750/300?random=1',
-        link: '/pages/home/index',
-        ts: now
-      },
-      {
-        title: 'ACM程序设计竞赛报名中',
-        image: 'https://picsum.photos/750/300?random=2',
-        link: '/pages/home/index',
-        ts: now - 86400000
-      },
-      {
-        title: '学术讲座：人工智能前沿技术',
-        image: 'https://picsum.photos/750/300?random=3',
-        link: '/pages/home/index',
-        ts: now - 172800000
-      }
-    ]
-    
-    for (const banner of banners) {
-      try {
-        const existing = await db.collection('banners').where({ title: banner.title }).limit(1).get()
-        if (existing.data && existing.data.length) continue
-        await db.collection('banners').add({ data: banner })
-      } catch (error) {
-        console.error('横幅创建失败:', error)
-      }
-    }
-    
-    const contents = [
-      {
-        title: '2024年春季校园招聘会',
-        summary: '多家知名企业来校招聘，涵盖IT、金融、教育等多个行业',
-        sourceId: 'source_career',
-        sourceName: '就业指导中心',
-        campus: 'haidian',
-        category: 'recruit',
-        tags: ['招聘', '就业', '企业', '互联网'],
-        publishTime: now,
-        createdAt: now,
-        sourceUrl: 'https://example.edu/recruit1',
-        location: '学生活动中心',
-        startTime: now + 86400000 * 3,
-        endTime: now + 86400000 * 3 + 3600000 * 8,
-        maxParticipants: 500,
-        currentParticipants: 120,
-        price: 0,
-        difficulty: 'beginner',
-        status: 'published',
-        viewCount: 256,
-        favoriteCount: 45,
-        shareCount: 12,
-        hotScore: 85
-      },
-      {
-        title: 'ACM程序设计竞赛',
-        summary: '第十五届校园ACM程序设计竞赛开始报名',
-        sourceId: 'source_ie',
-        sourceName: '信息工程学院',
-        campus: 'haidian',
-        category: 'competition',
-        tags: ['竞赛', '编程', 'ACM', '算法'],
-        publishTime: now - 3600000,
-        createdAt: now - 3600000,
-        sourceUrl: 'https://example.edu/acm1',
-        location: '计算机实验室',
-        startTime: now + 86400000 * 7,
-        endTime: now + 86400000 * 7 + 3600000 * 4,
-        maxParticipants: 100,
-        currentParticipants: 67,
-        price: 0,
-        difficulty: 'advanced',
-        status: 'published',
-        viewCount: 189,
-        favoriteCount: 78,
-        shareCount: 23,
-        hotScore: 92
-      },
-      {
-        title: '人工智能前沿技术讲座',
-        summary: '邀请业界专家分享AI最新发展趋势',
-        sourceId: 'source_academic',
-        sourceName: '教务处',
-        campus: 'haidian',
-        category: 'academic',
-        tags: ['讲座', 'AI', '技术', '机器学习'],
-        publishTime: now - 7200000,
-        createdAt: now - 7200000,
-        sourceUrl: 'https://example.edu/ai_lecture',
-        location: '学术报告厅',
-        startTime: now + 86400000 * 2,
-        endTime: now + 86400000 * 2 + 3600000 * 2,
-        maxParticipants: 200,
-        currentParticipants: 156,
-        price: 0,
-        difficulty: 'intermediate',
-        status: 'published',
-        viewCount: 312,
-        favoriteCount: 89,
-        shareCount: 34,
-        hotScore: 88
-      },
-      {
-        title: '校园足球联赛',
-        summary: '春季校园足球联赛即将开始',
-        sourceId: 'source_sports',
-        sourceName: '体育部',
-        campus: 'haidian',
-        category: 'sports',
-        tags: ['足球', '体育', '联赛', '比赛'],
-        publishTime: now - 14400000,
-        createdAt: now - 14400000,
-        sourceUrl: 'https://example.edu/football',
-        location: '体育场',
-        startTime: now + 86400000 * 4,
-        endTime: now + 86400000 * 4 + 3600000 * 2,
-        maxParticipants: 0,
-        currentParticipants: 0,
-        price: 0,
-        difficulty: 'beginner',
-        status: 'published',
-        viewCount: 98,
-        favoriteCount: 23,
-        shareCount: 15,
-        hotScore: 72
-      }
-    ]
-    
-    let repairedContents = 0
-    let insertedContents = 0
-    for (const content of contents) {
-      try {
-        const existing = await db.collection('contents')
-          .where({ title: content.title })
-          .limit(1)
-          .get()
-        if (existing.data && existing.data.length) {
-          // 不重复插入示例；同时把旧版 open 状态修复为 published，恢复首页可见性。
-          await db.collection('contents').doc(existing.data[0]._id).update({
-            data: {
-              status: 'published',
-              updatedAt: now,
-              sourceName: existing.data[0].sourceName || content.sourceName,
-              category: existing.data[0].category || content.category,
-              isOfficial: existing.data[0].isOfficial !== false
-            }
-          })
-          repairedContents++
-        } else {
-          await db.collection('contents').add({ data: content })
-          insertedContents++
-        }
-      } catch (error) {
-        console.error('内容创建失败:', error)
-      }
-    }
-    
-    console.log('示例数据创建完成')
-    
-    return { 
-      ok: true, 
-      message: '示例数据创建成功',
-      inserted: { 
-        users: users.length,
-        tags: tags.length, 
-        sources: sources.length, 
-        contents: insertedContents,
-        repairedContents,
-        banners: banners.length
-      } 
-    }
-    
-  } catch (error) {
-    console.error('创建示例数据失败:', error)
-    return { 
-      ok: false, 
-      error: '创建失败', 
-      message: error.message 
-    }
+  return {
+    ok: false,
+    error: 'demo_data_disabled',
+    message: '演示数据已永久停用，请使用真实采集器或管理员发布功能'
   }
+
 }
 
 async function removeDemoContent() {
-  const results = { contents: 0, banners: 0 }
+  const results = { contents: 0, banners: 0, campusPosts: 0 }
   try {
     const contentRes = await db.collection('contents').get()
     for (const doc of contentRes.data || []) {
@@ -2527,7 +2301,17 @@ async function removeDemoContent() {
       await db.collection('banners').doc(doc._id).remove()
       results.banners++
     }
-    return { ok: true, message: `已清理 ${results.contents} 条演示资讯和 ${results.banners} 条演示横幅`, results }
+    try {
+      const postRes = await db.collection('campus_posts').get()
+      for (const post of postRes.data || []) {
+        if (!isDemoCampusPost(post)) continue
+        await db.collection('campus_posts').doc(post._id).remove()
+        results.campusPosts++
+      }
+    } catch (error) {
+      console.warn('清理校园动态演示内容时集合不可用:', error.message)
+    }
+    return { ok: true, message: `已清理 ${results.contents} 条演示资讯、${results.banners} 条演示横幅和 ${results.campusPosts} 条校园动态演示内容`, results }
   } catch (error) {
     console.error('清理演示数据失败:', error)
     return { ok: false, error: 'remove_demo_failed', message: error.message, results }

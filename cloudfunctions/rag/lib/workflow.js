@@ -10,6 +10,8 @@ const { reviewerAgent } = require('./agents/reviewer')
 const { createRepository } = require('./services/repository')
 const { runTools } = require('./tools')
 
+const workflowCache = new WeakMap()
+
 function createWorkflow(db) {
   const retrievalAgent = createRetrievalAgent(createRepository(db))
   const toolAgent = RunnableLambda.from(async state => {
@@ -32,16 +34,24 @@ function createWorkflow(db) {
         location: item.location,
         isOfficial: true
       }))
+    const uniqueEvidence = []
+    const evidenceKeys = new Set()
+    for (const item of toolEvidence) {
+      const key = String(item.id || item.sourceUrl || item.title || '').trim().toLowerCase()
+      if (!key || evidenceKeys.has(key)) continue
+      evidenceKeys.add(key)
+      uniqueEvidence.push(item)
+    }
     const webLinks = toolResults
       .filter(item => item.tool === 'web_search')
       .flatMap(item => item.results || [])
       .filter(item => item.url)
       .slice(0, 6)
       .map(item => ({ type: 'web', title: item.title, summary: item.snippet || '', url: item.url }))
-    const contentLinks = toolEvidence.slice(0, 8).map(item => ({ type: 'content', id: item.id, title: item.title, summary: item.summary, sourceName: item.sourceName, sourceUrl: item.sourceUrl }))
+    const contentLinks = uniqueEvidence.slice(0, 8).map(item => ({ type: 'content', id: item.id, title: item.title, summary: item.summary, sourceName: item.sourceName, sourceUrl: item.sourceUrl }))
     return {
       toolResults,
-      evidence: toolEvidence.length ? toolEvidence : (state.evidence || []),
+      evidence: uniqueEvidence.length ? uniqueEvidence.slice(0, 8) : (state.evidence || []),
       links: contentLinks.concat(webLinks).slice(0, 8),
       tools: intent.tools || [],
       trace: [...state.trace, { stage: 'A', agent: 'tool_orchestrator', tools: intent.tools || [], resultCount: toolResults.length }]
@@ -84,10 +94,16 @@ function createWorkflow(db) {
     .compile()
 }
 
+function getWorkflow(db) {
+  if (!db || (typeof db !== 'object' && typeof db !== 'function')) return createWorkflow(db)
+  if (!workflowCache.has(db)) workflowCache.set(db, createWorkflow(db))
+  return workflowCache.get(db)
+}
+
 async function runWorkflow(db, input) {
   const startedAt = Date.now()
   const traceId = input.traceId || crypto.randomBytes(8).toString('hex')
-  const app = createWorkflow(db)
+  const app = getWorkflow(db)
   const result = await app.invoke({ ...input, traceId, retryCount: 0, trace: [] })
   return {
     answer: result.answer || result.draft,
@@ -96,6 +112,7 @@ async function runWorkflow(db, input) {
       workflow: 'STAR',
       intent: result.intent?.intent || '',
       route: result.intent?.route || '',
+      intentConfidence: result.intent?.confidence || 0,
       grounded: (result.evidence || []).length > 0,
       multimodal: Array.isArray(input.imageUrls) && input.imageUrls.length > 0,
       imageCount: Array.isArray(input.imageUrls) ? input.imageUrls.length : 0,
@@ -105,6 +122,7 @@ async function runWorkflow(db, input) {
       reviewStatus: result.review?.approved ? 'approved' : 'fallback',
       reviewScore: result.review?.score || 0,
       retryCount: result.retryCount || 0,
+      historyUsed: Array.isArray(result.compressedHistory) ? result.compressedHistory.length : 0,
       latencyMs: Date.now() - startedAt,
       traceId,
       stages: (result.trace || []).map(item => ({ ...item }))

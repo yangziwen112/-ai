@@ -63,6 +63,6 @@
     <text class="section-title">系统维护</text>
     <text class="maintenance-desc">首次部署或数据库结构升级时使用，普通运营无需操作。</text>
     <button class="maintenance-btn" bindtap="initCollections">检查并初始化数据表</button>
-    <button class="maintenance-btn danger" bindtap="removeDemoContent">清理演示数据与假链接</button>
+    <button class="maintenance-btn danger" bindtap="removeDemoContent">清理历史演示数据与假链接</button>
   </view>
 </view>

@@ -18,6 +18,7 @@
       maxlength="500"
       auto-height
     />
+    <text class="market-sync-tip" wx:if="{{category === 'market'}}">填写下方规格后，会自动同步到正文末尾，方便同学查看。</text>
     <text class="content-count">{{content.length}}/500</text>
   </view>
 

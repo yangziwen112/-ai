@@ -1,4 +1,5 @@
 const https = require('https')
+const { extractKeywords, CERTIFICATION_CATEGORIES } = require('../services/repository')
 
 function requestJson(url, headers = {}, timeout = 8000) {
   return new Promise((resolve, reject) => {
@@ -170,12 +171,14 @@ function publicDocument(item) {
 
 function isDemoPlaceholder(item) {
   const text = [item?.title, item?.summary, item?.description, item?.sourceUrl, item?.linkUrl].filter(Boolean).join(' ')
-  return /example\.edu|example\.com|picsum\.photos/i.test(text) || ['2024年春季校园招聘会', 'ACM程序设计竞赛', '人工智能前沿技术讲座', '校园足球联赛'].includes(String(item?.title || '').trim())
+  return /example\.edu|example\.com|picsum\.photos/i.test(text) || (item?.ingestType !== 'crawler' && ['2024年春季校园招聘会', 'ACM程序设计竞赛', '人工智能前沿技术讲座', '校园足球联赛'].includes(String(item?.title || '').trim()))
 }
 
 async function publicDatabase(db, query, intent = {}) {
   const _ = db.command
-  const keywords = Array.isArray(intent.keywords) ? intent.keywords.slice(0, 4) : []
+  const keywords = Array.isArray(intent.keywords) && intent.keywords.length
+    ? intent.keywords.slice(0, 4)
+    : extractKeywords(query).slice(0, 4)
   const patterns = keywords.flatMap(keyword => {
     const safe = String(keyword).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 40)
     return [
@@ -184,12 +187,12 @@ async function publicDatabase(db, query, intent = {}) {
       { tags: _.in([keyword]) }
     ]
   })
-  const category = intent.category === 'certification' ? _.in(['certification', 'teacher-cert']) : intent.category
+  const category = intent.category === 'certification' ? _.in(CERTIFICATION_CATEGORIES) : intent.category
   const base = { status: _.in(['published', 'open']) }
   if (category) base.category = category
   const where = patterns.length ? _.and(base, _.or(patterns)) : base
   try {
-    const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(20).get()
+    const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(40).get()
     const docs = (res.data || []).filter(item => !isDemoPlaceholder(item)).map(publicDocument)
     const byCategory = docs.reduce((map, item) => {
       map[item.category] = (map[item.category] || 0) + 1
