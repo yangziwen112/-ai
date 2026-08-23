@@ -9,7 +9,7 @@ const crypto = require('crypto')
 const db = cloud.database()
 const _ = db.command
 const RAG_PROTOCOL_VERSION = 'star-rag-v2'
-const RAG_DEPLOYMENT_VERSION = 'star-langgraph-20260821-v3'
+const RAG_DEPLOYMENT_VERSION = 'star-langgraph-20260823-v4'
 // 当前为联调阶段；正式发布前必须改为 false。
 const DEBUG_ADMIN_LOGIN_ENABLED = false
 const DEBUG_LOCAL_USER_ID = 'debug-admin-local'
