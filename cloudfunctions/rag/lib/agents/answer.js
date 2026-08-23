@@ -46,8 +46,8 @@ function buildDegradedAnswer(state, error) {
   if (toolRecords.length) {
     return `相关信息：\n${toolRecords.map((item, index) => `${index + 1}. ${item.title || '未命名资讯'}`).join('\n')}\n详情请打开对应资讯。`
   }
-  if (state.imageUrls?.length) return '图片已收到，但图片理解服务暂时繁忙。你可以先补充文字说明，我会继续处理。'
-  return 'AI 整理服务暂时繁忙，暂未生成可靠答案。请稍后重试，或换一个更具体的关键词。'
+  if (state.imageUrls?.length) return '图片已收到，但我暂时无法确认其中的内容。请补充一句文字说明，我再帮你判断。'
+  return '暂时没有找到足够可靠的信息。你可以换个关键词，或打开相关资讯查看详情。'
 }
 
 const answerAgent = RunnableLambda.from(async state => {
