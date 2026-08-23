@@ -25,14 +25,15 @@ function evaluateAnswer(state, answer) {
     : /下一步|建议|查看原文|打开|登录|订阅|确认|报名|联系/.test(safe)
   const unsupportedDate = hasUnsupportedDate(safe, state)
   const internalLeak = /模型暂时|数据库原文|工具调用|检索过程|工作流失败|RAG_|traceId/i.test(safe)
+  const sourceDump = /(?:^|\n)相关信息[:：]\s*(?:\n\s*)?1[.、]|-->|中国教育考试网.{0,30}首页.{0,30}(?:考试动态|常见问题)/i.test(safe)
   const evidenceScore = evidenceRequired ? (hasEvidence ? 100 : noEvidenceDisclosure ? 72 : 35) : 100
   const conciseScore = concise ? 100 : 55
   const actionScore = actionable ? 100 : 60
-  const safetyScore = unsupportedDate || internalLeak ? 20 : 100
+  const safetyScore = unsupportedDate || internalLeak || sourceDump ? 20 : 100
   const score = Math.round((evidenceScore * 0.45) + (conciseScore * 0.2) + (actionScore * 0.2) + (safetyScore * 0.15))
   return {
     answer: safe,
-    approved: !!safe && !unsupportedDate && !internalLeak && score >= 70,
+    approved: !!safe && !unsupportedDate && !internalLeak && !sourceDump && score >= 70,
     score,
     metrics: {
       evidenceScore,
@@ -42,9 +43,12 @@ function evaluateAnswer(state, answer) {
       evidenceCount,
       evidenceRequired,
       unsupportedDate,
-      internalLeak
+      internalLeak,
+      sourceDump
     },
-    feedback: internalLeak
+    feedback: sourceDump
+      ? '回答只是资料清单或包含网页导航，没有直接解决用户问题；请先给明确结论。'
+      : internalLeak
       ? '回答暴露了内部实现或故障状态，请改为自然、面向用户的业务表达。'
       : unsupportedDate
       ? '没有可靠证据却给出了精确日期，请删除无依据的时间。'

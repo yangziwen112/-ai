@@ -31,7 +31,7 @@ function createRetrievalAgent(repository) {
       retrievalError = String(error?.message || 'RETRIEVAL_FAILED').slice(0, 120)
       console.warn('RAG_RETRIEVAL_DEGRADED', { route: state.intent.route, error: retrievalError })
     }
-    evidence = dedupeEvidence(evidence)
+    evidence = dedupeEvidence(evidence.length ? evidence : state.evidence)
     return {
       evidence,
       links: toLinks(evidence),

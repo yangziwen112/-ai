@@ -169,8 +169,11 @@ function extractSchedule(text = '') {
   const timePart = '(?:\\s*(\\d{1,2})[:：](\\d{1,2}))?'
   const deadlineMatch = normalized.match(new RegExp(`(?:报名|申报|投稿|提交|申请)[^。；;]{0,28}(?:截止|截至)[^0-9]{0,8}${datePart}${timePart}`))
     || normalized.match(new RegExp(`(?:截止|截至)[^0-9]{0,8}${datePart}${timePart}`))
+  const registrationStartMatch = normalized.match(new RegExp(`(?:报名|报考)[^。；;]{0,32}(?:开始|开放|起)[^0-9]{0,8}${datePart}${timePart}`))
+    || normalized.match(new RegExp(`(?:报名|报考)(?:时间|日期)?[^。；;0-9]{0,12}${datePart}${timePart}`))
   const startMatch = normalized.match(new RegExp(`(?:活动|讲座|比赛|会议|考试|宣讲|培训|演出|开幕)[^。；;]{0,28}(?:时间|日期)?[^0-9]{0,8}${datePart}${timePart}`))
   return {
+    registrationStartTime: parseDateMatch(registrationStartMatch),
     deadline: parseDateMatch(deadlineMatch),
     startTime: parseDateMatch(startMatch)
   }
@@ -241,6 +244,7 @@ function extractAction(text = '', category = '') {
 function buildStructuredSummary(title, body, schedule, category) {
   const text = decodeHtml(`${title} ${body}`)
   const parts = [`对象：${extractAudience(text)}`]
+  if (schedule.registrationStartTime) parts.push(`报名开始：${formatDate(schedule.registrationStartTime)}`)
   if (schedule.deadline) parts.push(`截止：${formatDate(schedule.deadline)}`)
   else if (schedule.startTime) parts.push(`时间：${formatDate(schedule.startTime)}`)
   const location = extractLocation(text)
@@ -393,6 +397,7 @@ async function crawlSource(source, options = {}) {
         freshnessScore: calculateFreshnessScore(publishTime, recencyDays),
         evidenceScore: calculateEvidenceScore(source, title, body, publishTime, link.url),
         deadline: schedule.deadline,
+        registrationStartTime: schedule.registrationStartTime,
         startTime: schedule.startTime,
         importantNotices: buildImportantNotices(title, body, schedule, category),
         status: 'published',

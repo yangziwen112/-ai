@@ -5,7 +5,7 @@ const { WorkflowState } = require('./state')
 const { situationAgent } = require('./agents/situation')
 const { intentAgent } = require('./agents/intent')
 const { createRetrievalAgent } = require('./agents/retrieval')
-const { answerAgent } = require('./agents/answer')
+const { answerAgent, buildDegradedAnswer } = require('./agents/answer')
 const { reviewerAgent } = require('./agents/reviewer')
 const { createRepository } = require('./services/repository')
 const { runTools } = require('./tools')
@@ -49,6 +49,7 @@ function createWorkflow(db) {
         sourceName: item.sourceName,
         sourceUrl: item.sourceUrl,
         publishTime: item.publishTime,
+        registrationStartTime: item.registrationStartTime,
         startTime: item.startTime,
         deadline: item.deadline,
         location: item.location,
@@ -82,9 +83,7 @@ function createWorkflow(db) {
     trace: [...state.trace, { stage: 'R', agent: 'reflection', action: 'revise_once' }]
   }))
   const fallbackAgent = RunnableLambda.from(async state => ({
-    answer: state.evidence?.length
-      ? '已找到相关信息，但目前无法确认完整结论。涉及时间和政策，请按需查看参考资料并以原文为准。'
-      : '暂时没有检索到足够可靠的信息。我不会猜测具体日期或政策，你可以换个关键词，或稍后查看首页的最新校园资讯。',
+    answer: buildDegradedAnswer(state),
     trace: [...state.trace, { stage: 'R', agent: 'fallback', status: 'safe_degrade' }]
   }))
 

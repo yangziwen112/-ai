@@ -151,8 +151,9 @@ async function webSearch(query) {
 function publicDocument(item) {
   const now = Date.now()
   const deadline = Number(item.deadline || item.registrationEndTime || 0)
+  const registrationStartTime = Number(item.registrationStartTime || 0)
   const startTime = Number(item.startTime || 0)
-  const nextTime = deadline > now ? deadline : (startTime > now ? startTime : 0)
+  const nextTime = registrationStartTime > now ? registrationStartTime : (deadline > now ? deadline : (startTime > now ? startTime : 0))
   return {
     id: item._id,
     title: String(item.title || '').slice(0, 160),
@@ -161,6 +162,7 @@ function publicDocument(item) {
     sourceName: item.sourceName || '校园资讯平台',
     sourceUrl: item.sourceUrl || item.linkUrl || '',
     publishTime: Number(item.publishTime || item.createdAt || 0),
+    registrationStartTime,
     startTime: Number(item.startTime || 0),
     deadline,
     nextTime,
@@ -200,7 +202,7 @@ async function publicDatabase(db, query, intent = {}) {
       return map
     }, {})
     const now = Date.now()
-    const upcoming = docs.filter(item => item.deadline > now || item.startTime > now).length
+    const upcoming = docs.filter(item => item.registrationStartTime > now || item.deadline > now || item.startTime > now).length
     return { tool: 'public_database', query: String(query || '').slice(0, 180), count: docs.length, records: docs, facets: { byCategory, upcoming } }
   } catch (error) {
     console.warn('公开资讯库查询失败:', error.message)

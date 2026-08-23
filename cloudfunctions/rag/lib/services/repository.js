@@ -47,6 +47,7 @@ function normalizeEvidence(item) {
     campus: item.campus || 'all',
     location: item.location || '',
     publishTime: Number(item.publishTime || 0),
+    registrationStartTime: Number(item.registrationStartTime || 0),
     startTime: Number(item.startTime || 0),
     endTime: Number(item.endTime || 0),
     deadline: Number(item.deadline || item.registrationEndTime || 0),
@@ -61,9 +62,10 @@ function normalizeEvidence(item) {
 }
 
 function scheduleTime(item, now = Date.now()) {
+  const registrationStartTime = Number(item.registrationStartTime || 0)
   const deadline = Number(item.deadline || item.registrationEndTime || 0)
   const startTime = Number(item.startTime || 0)
-  return { deadline, startTime, nextTime: deadline > now ? deadline : (startTime > now ? startTime : 0) }
+  return { registrationStartTime, deadline, startTime, nextTime: registrationStartTime > now ? registrationStartTime : (deadline > now ? deadline : (startTime > now ? startTime : 0)) }
 }
 
 function isDemoPlaceholder(item) {
@@ -131,7 +133,7 @@ function createRepository(db) {
     }
     const active = rows.filter(item => !isDemoPlaceholder(item))
       .map(normalizeEvidence)
-      .filter(item => item.deadline > now || item.startTime > now)
+      .filter(item => item.registrationStartTime > now || item.deadline > now || item.startTime > now)
       .filter(item => categoryMatches(item.category, category))
       .sort((a, b) => {
         const at = scheduleTime(a, now).nextTime || Infinity
