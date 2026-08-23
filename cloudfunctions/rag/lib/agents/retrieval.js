@@ -1,7 +1,7 @@
 const { RunnableLambda } = require('@langchain/core/runnables')
 
 function toLinks(evidence) {
-  return evidence.map(item => ({
+  return evidence.slice(0, 3).map(item => ({
     type: 'content', id: item.id, title: item.title, summary: item.summary,
     sourceName: item.sourceName, sourceUrl: item.sourceUrl
   }))
@@ -17,7 +17,7 @@ function dedupeEvidence(items) {
       return true
     })
     .sort((a, b) => (Number(b.evidenceScore || 0) - Number(a.evidenceScore || 0)) || (Number(b.freshnessScore || 0) - Number(a.freshnessScore || 0)) || (Number(b.publishTime || 0) - Number(a.publishTime || 0)))
-    .slice(0, 8)
+    .slice(0, 4)
 }
 
 function createRetrievalAgent(repository) {
@@ -41,4 +41,4 @@ function createRetrievalAgent(repository) {
   })
 }
 
-module.exports = { createRetrievalAgent }
+module.exports = { createRetrievalAgent, dedupeEvidence }

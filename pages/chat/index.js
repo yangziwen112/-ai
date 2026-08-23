@@ -128,7 +128,9 @@ Page({
         const latestAssistantIndex = rawMessages.reduce((latest, message, index) => message.role === 'assistant' ? index : latest, -1)
         const messages = rawMessages.map((message, index) => ({
           ...message,
-          contentParts: this.parseContentParts(message.content, message.links || []),
+          links: this.normalizeReferenceLinks(message.links),
+          contentParts: this.parseContentParts(message.content, this.normalizeReferenceLinks(message.links)),
+          showReferences: false,
           showCompanionAnimation: index === latestAssistantIndex,
           bubbleEmojis: null
         }))
@@ -288,7 +290,7 @@ Page({
       
       if (result.code === 200 && result.data && result.data.answer) {
         let answer = result.data.answer
-        const links = result.data.links || []
+        const links = this.normalizeReferenceLinks(result.data.links)
         const nextGuestMessageCount = this.data.isLoggedIn
           ? this.data.guestMessageCount
           : Math.min(this.data.guestMessageCount + 1, this.data.maxGuestMessages)
@@ -305,6 +307,7 @@ Page({
           content: answer, 
           contentParts,
           links,
+          showReferences: false,
           meta: result.data.meta || {},
           showCompanionAnimation: true,
           bubbleEmojis: null
@@ -527,6 +530,40 @@ Page({
     }
     
     return parts.length > 0 ? parts : null
+  },
+
+  normalizeReferenceLinks(links) {
+    if (!Array.isArray(links)) return []
+    const seen = new Set()
+    const normalized = []
+    for (const item of links) {
+      if (!item || typeof item !== 'object') continue
+      const title = String(item.title || '').replace(/\s+/g, ' ').trim().slice(0, 80)
+      if (!title) continue
+      const type = item.type === 'web' ? 'web' : 'content'
+      const id = type === 'content' ? String(item.id || '').trim() : ''
+      const url = type === 'web' && /^https:\/\//i.test(String(item.url || '')) ? String(item.url).trim() : ''
+      const titleKey = title.toLowerCase().replace(/[\s【】《》（）()、，。:：·\-]/g, '')
+      const key = id || url || titleKey
+      if (!key || seen.has(key)) continue
+      seen.add(key)
+      normalized.push({
+        type,
+        id,
+        url,
+        title,
+        sourceName: String(item.sourceName || '').trim().slice(0, 40),
+        summary: String(item.summary || item.snippet || '').replace(/\s+/g, ' ').trim().slice(0, 100)
+      })
+      if (normalized.length >= 3) break
+    }
+    return normalized
+  },
+
+  toggleReferences(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    if (!Number.isInteger(index) || index < 0 || index >= this.data.messages.length) return
+    this.setData({ [`messages[${index}].showReferences`]: !this.data.messages[index].showReferences })
   },
 
   // 点击链接卡片

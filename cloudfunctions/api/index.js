@@ -1956,7 +1956,7 @@ async function saveAIMessage({ userId, message, appUserId, conversationId = '', 
     const cleanMessage = {
       role,
       content: String(message?.content || '').slice(0, 8000),
-      links: role === 'assistant' && Array.isArray(message?.links) ? message.links.slice(0, 8) : [],
+      links: role === 'assistant' && Array.isArray(message?.links) ? message.links.slice(0, 3) : [],
       imageFileIds: role === 'user' ? sanitizeImageFileIds(message?.imageFileIds) : [],
       meta: role === 'assistant' ? meta : {}
     }
@@ -2761,7 +2761,7 @@ async function callRagFunction({ action = 'chat', query, history = [], userConte
           message: 'success',
           data: {
             answer: payload.data.answer,
-            links: Array.isArray(payload.data.links) ? payload.data.links.slice(0, 8) : [],
+            links: Array.isArray(payload.data.links) ? payload.data.links.slice(0, 3) : [],
             meta: responseMeta
           }
         }

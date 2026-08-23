@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { runWorkflow } = require('../lib/workflow')
+const { runWorkflow, normalizeLinks } = require('../lib/workflow')
 const { deterministicIntent } = require('../lib/agents/intent')
 const { extractKeywords, inferCategory, categoryMatches } = require('../lib/services/repository')
 
@@ -23,6 +23,15 @@ async function main() {
   assert.equal(deterministicIntent('你忙吗', {}).route, 'social_chat')
   assert.equal(deterministicIntent('你的边界在哪里', {}).route, 'capability_boundary')
   assert.ok(deterministicIntent('现在北京时间几点', {}).confidence == null || deterministicIntent('现在北京时间几点', {}).confidence >= 0.9)
+  const links = normalizeLinks([
+    { type: 'content', id: '1', title: '报名工作的通知' },
+    { type: 'content', id: '1', title: '报名工作的通知（重复）' },
+    { type: 'web', title: '官方入口', url: 'http://unsafe.example' },
+    { type: 'content', id: '2', title: '考试安排' },
+    { type: 'content', id: '3', title: '成绩通知' }
+  ])
+  assert.equal(links.length, 3)
+  assert.equal(links[1].url, '')
 
   const db = { command: {}, collection() { throw new Error('unsafe route should not query db') } }
   const result = await runWorkflow(db, {

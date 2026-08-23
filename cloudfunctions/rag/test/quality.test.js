@@ -15,4 +15,5 @@ assert.equal(evaluateAnswer(state(), '报名截止时间是 6 月 30 日。建�
 assert.equal(evaluateAnswer(state({ evidence: [] }), '我猜报名截止是 6 月 30 日。').approved, false)
 assert.equal(evaluateAnswer(state({ evidence: [] }), '目前没有检索到可靠的截止时间，请打开官方原文确认。').approved, true)
 assert.equal(evaluateAnswer(state({ intent: { route: 'social_chat' }, evidence: [] }), '你好，需要查什么校园信息？').approved, true)
+assert.equal(evaluateAnswer(state(), '模型暂时繁忙，请查看数据库原文。').approved, false)
 console.log('Answer quality tests passed')

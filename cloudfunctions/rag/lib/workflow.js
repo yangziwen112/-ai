@@ -12,6 +12,26 @@ const { runTools } = require('./tools')
 
 const workflowCache = new WeakMap()
 
+function normalizeLinks(links, limit = 3) {
+  const seen = new Set()
+  const output = []
+  for (const item of Array.isArray(links) ? links : []) {
+    if (!item || typeof item !== 'object') continue
+    const type = item.type === 'web' ? 'web' : 'content'
+    const title = String(item.title || '').replace(/\s+/g, ' ').trim().slice(0, 100)
+    if (!title) continue
+    const id = type === 'content' ? String(item.id || '').trim() : ''
+    const url = type === 'web' && /^https:\/\//i.test(String(item.url || '')) ? String(item.url).trim() : ''
+    const titleKey = title.toLowerCase().replace(/[\s【】《》（）()、，。:：·\-]/g, '')
+    const key = id || url || titleKey
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    output.push({ type, id, url, title, summary: String(item.summary || item.snippet || '').replace(/\s+/g, ' ').trim().slice(0, 160), sourceName: String(item.sourceName || '').trim().slice(0, 60), sourceUrl: type === 'content' && /^https:\/\//i.test(String(item.sourceUrl || '')) ? String(item.sourceUrl).trim() : '' })
+    if (output.length >= limit) break
+  }
+  return output
+}
+
 function createWorkflow(db) {
   const retrievalAgent = createRetrievalAgent(createRepository(db))
   const toolAgent = RunnableLambda.from(async state => {
@@ -46,13 +66,13 @@ function createWorkflow(db) {
       .filter(item => item.tool === 'web_search')
       .flatMap(item => item.results || [])
       .filter(item => item.url)
-      .slice(0, 6)
+      .slice(0, 3)
       .map(item => ({ type: 'web', title: item.title, summary: item.snippet || '', url: item.url }))
-    const contentLinks = uniqueEvidence.slice(0, 8).map(item => ({ type: 'content', id: item.id, title: item.title, summary: item.summary, sourceName: item.sourceName, sourceUrl: item.sourceUrl }))
+    const contentLinks = uniqueEvidence.slice(0, 3).map(item => ({ type: 'content', id: item.id, title: item.title, summary: item.summary, sourceName: item.sourceName, sourceUrl: item.sourceUrl }))
     return {
       toolResults,
-      evidence: uniqueEvidence.length ? uniqueEvidence.slice(0, 8) : (state.evidence || []),
-      links: contentLinks.concat(webLinks).slice(0, 8),
+      evidence: uniqueEvidence.length ? uniqueEvidence.slice(0, 4) : (state.evidence || []),
+      links: normalizeLinks(contentLinks.concat(webLinks)),
       tools: intent.tools || [],
       trace: [...state.trace, { stage: 'A', agent: 'tool_orchestrator', tools: intent.tools || [], resultCount: toolResults.length }]
     }
@@ -63,7 +83,7 @@ function createWorkflow(db) {
   }))
   const fallbackAgent = RunnableLambda.from(async state => ({
     answer: state.evidence?.length
-      ? `我找到了相关校园资讯，但暂时无法可靠整理完整结论。你可以先查看下方的来源卡片，涉及时间和政策请以原文为准。`
+      ? '已找到相关信息，但目前无法确认完整结论。涉及时间和政策，请按需查看参考资料并以原文为准。'
       : '暂时没有检索到足够可靠的信息。我不会猜测具体日期或政策，你可以换个关键词，或稍后查看首页的最新校园资讯。',
     trace: [...state.trace, { stage: 'R', agent: 'fallback', status: 'safe_degrade' }]
   }))
@@ -107,7 +127,7 @@ async function runWorkflow(db, input) {
   const result = await app.invoke({ ...input, traceId, retryCount: 0, trace: [] })
   return {
     answer: result.answer || result.draft,
-    links: result.links || [],
+    links: normalizeLinks(result.links),
     meta: {
       workflow: 'STAR',
       intent: result.intent?.intent || '',
@@ -130,4 +150,4 @@ async function runWorkflow(db, input) {
   }
 }
 
-module.exports = { createWorkflow, runWorkflow }
+module.exports = { createWorkflow, runWorkflow, normalizeLinks }

@@ -73,15 +73,20 @@
             </block>
             <text wx:if="{{!item.contentParts}}" class="msg-text">{{item.content}}</text>
             
-            <!-- 可点击的内容链接卡片 -->
+            <!-- 参考资料默认折叠，避免打断正文阅读 -->
             <view wx:if="{{item.links && item.links.length > 0}}" class="msg-links">
-              <view class="links-title">相关内容</view>
-              <view 
+              <button class="references-toggle" catchtap="toggleReferences" data-index="{{index}}">
+                <text>{{item.showReferences ? '收起参考资料' : '查看参考资料'}}</text>
+                <text class="references-count">{{item.links.length}}</text>
+                <text class="references-chevron {{item.showReferences ? 'expanded' : ''}}">⌄</text>
+              </button>
+              <view
+                wx:if="{{item.showReferences}}"
                 wx:for="{{item.links}}" 
-                wx:key="idx" 
+                wx:key="title" 
                 wx:for-item="link"
                 class="link-card {{link.type}}"
-                bindtap="onTapLink"
+                catchtap="onTapLink"
                 data-link="{{link}}"
               >
                 <view class="link-icon">{{link.type === 'content' ? '📋' : '🌐'}}</view>

@@ -594,15 +594,49 @@
 
 /* 链接卡片区域 */
 .msg-links {
-  margin-top: 16rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid rgba(0, 0, 0, 0.08);
+  margin-top: 14rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid rgba(15, 23, 42, 0.08);
 }
 
-.links-title {
+.references-toggle {
+  width: auto;
+  min-height: 54rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  margin: 0 0 8rpx;
+  padding: 0 14rpx;
+  color: #536176;
+  background: #f3f6fa;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 8rpx;
   font-size: 22rpx;
-  color: #999;
-  margin-bottom: 12rpx;
+  line-height: 1;
+}
+
+.references-toggle::after { border: 0; }
+
+.references-count {
+  min-width: 28rpx;
+  height: 28rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  background: #e8f0ff;
+  border-radius: 50%;
+  font-size: 18rpx;
+}
+
+.references-chevron {
+  color: #8090a6;
+  transform: rotate(0deg);
+  transition: transform .2s ease;
+}
+
+.references-chevron.expanded {
+  transform: rotate(180deg);
 }
 
 .link-card {
