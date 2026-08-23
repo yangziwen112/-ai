@@ -163,14 +163,10 @@ docs/                          产品、架构、部署和研究文档
 
 截图用于记录开发阶段的真实界面状态，不代表所有页面已经完成生产环境验收。建议在微信开发者工具中依次截取首页、校园动态、AI 助手、二手书发布、管理中心和登录引导六个页面，并统一使用相同窗口比例，隐藏调试面板和个人敏感信息后再替换到 `docs/screenshots/`。截图命名建议使用：`01-home.png`、`02-campus-feed.png`、`03-ai-chat.png`、`04-secondhand-book.png`、`05-admin-center.png`、`06-login-guide.png`。
 
-本次整理使用的页面素材如下，均来自微信开发者工具中的真实界面记录：
+首页截图用于展示整体入口，AI 助手截图用于展示问答体验；其他页面请见[完整界面截图](docs/screenshots/README.md)。
 
 ![首页](images/4ea780dd5bc1b40c8b0a4e71c1acc994.png)
-![校园动态](images/29d57afee43e55e25a11bfd9bdcc1c7b.png)
 ![AI 助手](images/f7230eaa4df803e870f240146356a201.png)
-![管理中心](images/ba28f63b5af1cd45b345d8150668a8ee.png)
-![消息](images/d887f4ebaef23c57de4483dae25fc94e.png)
-![个人中心](images/e2eea86f278becba2efbac177c456586.png)
 
 ## 文档导航
 
