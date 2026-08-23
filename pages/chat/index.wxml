@@ -39,7 +39,7 @@
       <view class="msg-item {{item.role}}" id="msg-{{index}}">
         <!-- AI头像 -->
         <view class="msg-avatar" wx:if="{{item.role === 'assistant'}}">
-          <image src="../../images/robot.png" mode="aspectFill"></image>
+          <view class="msg-avatar-fallback">奈</view>
           <view class="avatar-glow" wx:if="{{item.showCompanionAnimation}}"></view>
           <view class="cat-companion" wx:if="{{item.showCompanionAnimation}}" aria-hidden="true">
             <view class="cat-tail"></view>

@@ -16,3 +16,12 @@
 - `06-login-guide.png`：游客浏览和登录引导。
 
 发布截图前，请关闭调试浮层并遮挡个人账号、云环境标识、内部日志和任何凭证。每张截图最好配一段简短说明，指出它验证的是哪项产品设计，而不是只展示页面外观。
+
+## 已整理的真实页面素材
+
+- [首页](../../images/4ea780dd5bc1b40c8b0a4e71c1acc994.png)
+- [校园动态](../../images/29d57afee43e55e25a11bfd9bdcc1c7b.png)
+- [AI 助手](../../images/f7230eaa4df803e870f240146356a201.png)
+- [管理中心](../../images/ba28f63b5af1cd45b345d8150668a8ee.png)
+- [消息](../../images/d887f4ebaef23c57de4483dae25fc94e.png)
+- [个人中心](../../images/e2eea86f278becba2efbac177c456586.png)

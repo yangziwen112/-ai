@@ -216,13 +216,19 @@
 @keyframes catPaw { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4rpx); } }
 @keyframes catBlink { 0%,45%,52%,100% { transform: scaleY(1); } 48%,50% { transform: scaleY(.25); } }
 
-.msg-avatar image {
+.msg-avatar-fallback {
   width: 60rpx;
   height: 60rpx;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 2;
   border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(135deg, #4f7cff, #7655c8);
+  font-size: 27rpx;
+  font-weight: 700;
   border: 3rpx solid rgba(255, 255, 255, 0.85);
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
 }
