@@ -93,8 +93,20 @@ function createRepository(db) {
     }
 
     const where = conditions.length === 1 ? conditions[0] : _.and(...conditions)
-    const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(30).get()
-    return (res.data || []).filter(item => !isDemoPlaceholder(item)).map(normalizeEvidence)
+    try {
+      const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(30).get()
+      return (res.data || []).filter(item => !isDemoPlaceholder(item)).map(normalizeEvidence)
+    } catch (error) {
+      console.warn('复杂资讯检索失败，启用兼容回退:', error.message)
+      const fallback = await db.collection('contents').where({ status: _.in(['published', 'open']) }).orderBy('publishTime', 'desc').limit(100).get()
+      const needle = keywords.map(item => String(item).toLowerCase())
+      return (fallback.data || [])
+        .filter(item => !isDemoPlaceholder(item))
+        .filter(item => categoryMatches(item.category, category))
+        .filter(item => !needle.length || needle.some(word => [item.title, item.summary, item.description, ...(Array.isArray(item.tags) ? item.tags : [])].join(' ').toLowerCase().includes(word)))
+        .slice(0, 30)
+        .map(normalizeEvidence)
+    }
   }
 
   async function getUpcoming(intent = {}, query = '') {
@@ -102,8 +114,16 @@ function createRepository(db) {
     const category = intent.category || inferCategory(query)
     const where = { status: _.in(['published', 'open']) }
     if (category) where.category = category === 'certification' ? _.in(CERTIFICATION_CATEGORIES) : category
-    const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(100).get()
-    const active = (res.data || []).filter(item => !isDemoPlaceholder(item))
+    let rows = []
+    try {
+      const res = await db.collection('contents').where(where).orderBy('publishTime', 'desc').limit(100).get()
+      rows = res.data || []
+    } catch (error) {
+      console.warn('带分类的近期资讯检索失败，启用兼容回退:', error.message)
+      const fallback = await db.collection('contents').where({ status: _.in(['published', 'open']) }).orderBy('publishTime', 'desc').limit(100).get()
+      rows = fallback.data || []
+    }
+    const active = rows.filter(item => !isDemoPlaceholder(item))
       .map(normalizeEvidence)
       .filter(item => item.deadline > now || item.startTime > now)
       .filter(item => categoryMatches(item.category, category))

@@ -5,7 +5,7 @@ const { runWorkflow } = require('./lib/workflow')
 const { MODEL, VISION_MODEL, REQUEST_TIMEOUT } = require('./lib/services/llm')
 const { currentTime } = require('./lib/tools')
 
-const RAG_DEPLOYMENT_VERSION = 'star-langgraph-20260821-v3'
+const RAG_DEPLOYMENT_VERSION = 'star-langgraph-20260823-v4'
 const RAG_PROTOCOL_VERSION = 'star-rag-v2'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV, traceUser: true })
@@ -108,16 +108,17 @@ exports.main = async event => {
       message: 'success'
     }
   } catch (error) {
-    const errorCode = error.message === 'AI_SERVICE_NOT_CONFIGURED'
+    const rawMessage = String(error?.message || '')
+    const errorCode = rawMessage === 'AI_SERVICE_NOT_CONFIGURED'
       ? 'AI_SERVICE_NOT_CONFIGURED'
-      : error.message === 'LLM_REQUEST_TIMEOUT' ? 'LLM_REQUEST_TIMEOUT' : 'RAG_WORKFLOW_FAILED'
-    const visionUnavailable = safeImageUrls.length > 0 && /image|vision|multimodal|model/i.test(String(error.message || ''))
-    console.error('RAG_WORKFLOW_ERROR', { traceId, errorCode, message: error.message, stack: error.stack, elapsedMs: Date.now() - startedAt })
+      : rawMessage === 'LLM_REQUEST_TIMEOUT' ? 'LLM_REQUEST_TIMEOUT' : 'RAG_WORKFLOW_FAILED'
+    const visionUnavailable = safeImageUrls.length > 0 && /image|vision|multimodal|model/i.test(rawMessage)
+    console.error('RAG_WORKFLOW_ERROR', { traceId, errorCode, message: rawMessage.slice(0, 240), stack: error?.stack, elapsedMs: Date.now() - startedAt })
     const responseCode = visionUnavailable ? 'AI_VISION_SERVICE_UNAVAILABLE' : errorCode
     return {
       code: 500,
       message: responseCode,
-      data: { answer: errorCode === 'AI_SERVICE_NOT_CONFIGURED' ? 'AI 服务尚未配置，请联系管理员设置模型密钥。' : 'AI 服务暂时不可用，请稍后再试。校园资讯仍可在首页正常浏览和搜索。', links: [], errorCode: responseCode }
+      data: { answer: errorCode === 'AI_SERVICE_NOT_CONFIGURED' ? 'AI 服务尚未配置，请联系管理员设置模型密钥。' : 'AI 服务暂时不可用，请稍后再试。校园资讯仍可在首页正常浏览和搜索。', links: [], errorCode: responseCode, traceId }
     }
   }
 }

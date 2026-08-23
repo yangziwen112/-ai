@@ -23,14 +23,20 @@ function dedupeEvidence(items) {
 function createRetrievalAgent(repository) {
   return RunnableLambda.from(async state => {
     let evidence = []
-    if (state.intent.route === 'upcoming') evidence = await repository.getUpcoming(state.intent, state.query)
-    else if (state.intent.route === 'campus_info') evidence = await repository.searchContents(state.query, state.intent)
+    let retrievalError = ''
+    try {
+      if (state.intent.route === 'upcoming') evidence = await repository.getUpcoming(state.intent, state.query)
+      else if (state.intent.route === 'campus_info') evidence = await repository.searchContents(state.query, state.intent)
+    } catch (error) {
+      retrievalError = String(error?.message || 'RETRIEVAL_FAILED').slice(0, 120)
+      console.warn('RAG_RETRIEVAL_DEGRADED', { route: state.intent.route, error: retrievalError })
+    }
     evidence = dedupeEvidence(evidence)
     return {
       evidence,
       links: toLinks(evidence),
       stage: 'A',
-      trace: [...state.trace, { stage: 'A', agent: 'retrieval', evidenceCount: evidence.length }]
+      trace: [...state.trace, { stage: 'A', agent: 'retrieval', evidenceCount: evidence.length, degraded: !!retrievalError, error: retrievalError || undefined }]
     }
   })
 }
