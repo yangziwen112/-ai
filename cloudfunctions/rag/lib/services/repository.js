@@ -60,6 +60,12 @@ function normalizeEvidence(item) {
   }
 }
 
+function scheduleTime(item, now = Date.now()) {
+  const deadline = Number(item.deadline || item.registrationEndTime || 0)
+  const startTime = Number(item.startTime || 0)
+  return { deadline, startTime, nextTime: deadline > now ? deadline : (startTime > now ? startTime : 0) }
+}
+
 function isDemoPlaceholder(item) {
   const text = [item?.title, item?.summary, item?.description, item?.sourceUrl, item?.linkUrl].filter(Boolean).join(' ')
   return /example\.edu|example\.com|picsum\.photos/i.test(text) || (item?.ingestType !== 'crawler' && ['2024年春季校园招聘会', 'ACM程序设计竞赛', '人工智能前沿技术讲座', '校园足球联赛'].includes(String(item?.title || '').trim()))
@@ -127,13 +133,22 @@ function createRepository(db) {
       .map(normalizeEvidence)
       .filter(item => item.deadline > now || item.startTime > now)
       .filter(item => categoryMatches(item.category, category))
-      .sort((a, b) => Math.min(a.deadline || Infinity, a.startTime || Infinity) - Math.min(b.deadline || Infinity, b.startTime || Infinity))
+      .sort((a, b) => {
+        const at = scheduleTime(a, now).nextTime || Infinity
+        const bt = scheduleTime(b, now).nextTime || Infinity
+        return at - bt || Number(b.publishTime || 0) - Number(a.publishTime || 0)
+      })
       .slice(0, 8)
     if (active.length || !query) return active
-    return searchContents(query, { ...intent, category })
+    // 近期查询的回退结果也必须经过未来节点过滤，避免把已过期的报名日期当作“下一次”。
+    const fallback = await searchContents(query, { ...intent, category })
+    return fallback
+      .filter(item => scheduleTime(item, now).nextTime > 0)
+      .sort((a, b) => scheduleTime(a, now).nextTime - scheduleTime(b, now).nextTime)
+      .slice(0, 8)
   }
 
   return { searchContents, getUpcoming }
 }
 
-module.exports = { createRepository, extractKeywords, inferCategory, categoryMatches, CERTIFICATION_CATEGORIES }
+module.exports = { createRepository, extractKeywords, inferCategory, categoryMatches, CERTIFICATION_CATEGORIES, scheduleTime }

@@ -14,6 +14,11 @@ function formatEvidence(items) {
   ].join('\n')).join('\n\n')
 }
 
+function formatNow(toolResults) {
+  const clock = (toolResults || []).find(item => item.tool === 'current_time')
+  return clock ? `当前时间：${clock.text}` : ''
+}
+
 function formatToolResults(results) {
   return (results || []).map(item => {
     if (item.tool === 'current_time') return `[时间工具] ${item.text}（${item.timeZone}，${item.timestamp}）`
@@ -82,6 +87,7 @@ const answerAgent = RunnableLambda.from(async state => {
     return { draft, stage: 'A', trace: [...state.trace, { stage: 'A', agent: 'concise_social_response', mode: 'local' }] }
   }
 
+  const nowText = formatNow(state.toolResults)
   const evidenceText = formatEvidence(state.evidence || [])
   const toolText = formatToolResults(state.toolResults || [])
   const noEvidenceRule = (route === 'campus_info' || route === 'upcoming') && !state.evidence?.length
@@ -91,14 +97,14 @@ const answerAgent = RunnableLambda.from(async state => {
   const historyText = formatHistory(state.compressedHistory || state.history)
   const userContent = state.imageUrls?.length
     ? [
-        { type: 'text', text: `路由:${route}\n用户问题:${state.query}\n最近对话:\n${historyText || '无'}\n工具结果:\n${toolText || '无'}\n证据:\n${evidenceText || '无'}\n${priorDraft}\n请理解用户上传的图片内容，并结合问题回答。` },
+        { type: 'text', text: `路由:${route}\n${nowText}\n用户问题:${state.query}\n最近对话:\n${historyText || '无'}\n工具结果:\n${toolText || '无'}\n证据:\n${evidenceText || '无'}\n${priorDraft}\n请理解用户上传的图片内容，并结合问题回答。` },
         ...state.imageUrls.map(url => ({ type: 'image_url', image_url: { url } }))
       ]
-    : `路由:${route}\n用户问题:${state.query}\n最近对话:\n${historyText || '无'}\n工具结果:\n${toolText || '无'}\n证据:\n${evidenceText || '无'}\n${priorDraft}`
+    : `路由:${route}\n${nowText}\n用户问题:${state.query}\n最近对话:\n${historyText || '无'}\n工具结果:\n${toolText || '无'}\n证据:\n${evidenceText || '无'}\n${priorDraft}`
   let result
   try {
     result = await invoke([
-      { role: 'system', content: `${PLATFORM_CONTEXT}\n${STYLE_RULES}\n${PRIVACY_RULES}\n${noEvidenceRule}\n回答要求：先给结论，再给最多 3 条关键点；默认不超过 140 个中文字符，只有用户明确要求详细说明时才展开；只输出解决问题所需的时间、地点、对象和下一步，不要罗列多个来源的重复内容；不要提及模型、数据库、工具、检索过程、故障或系统状态；引用平台内容时只保留最相关的一个标题。` },
+      { role: 'system', content: `${PLATFORM_CONTEXT}\n${STYLE_RULES}\n${PRIVACY_RULES}\n${noEvidenceRule}\n时间规则：先根据当前时间判断节点是否已过去；用户问“下一场”“最近一次”或“什么时候报名”时，只能回答当前时间之后最近的有效节点，已过期节点不能作为答案。若没有未来节点，明确说明暂未找到下一次安排。回答要求：先给结论，再给最多 3 条关键点；默认不超过 140 个中文字符，只有用户明确要求详细说明时才展开；只输出解决问题所需的时间、地点、对象和下一步，不要罗列多个来源的重复内容；不要提及模型、数据库、工具、检索过程、故障或系统状态；引用平台内容时只保留最相关的一个标题。` },
       { role: 'user', content: userContent }
     ], { temperature: 0.25, maxTokens: 260, vision: !!state.imageUrls?.length })
   } catch (error) {

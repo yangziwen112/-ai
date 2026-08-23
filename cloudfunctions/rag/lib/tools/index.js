@@ -165,6 +165,7 @@ function publicDocument(item) {
     deadline,
     nextTime,
     remainingDays: nextTime ? Math.ceil((nextTime - now) / 86400000) : null,
+    isExpired: !nextTime && (deadline > 0 || startTime > 0),
     location: String(item.location || '').slice(0, 100)
   }
 }
