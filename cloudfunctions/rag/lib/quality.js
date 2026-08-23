@@ -18,8 +18,8 @@ function evaluateAnswer(state, answer) {
   const evidenceRequired = ['campus_info', 'upcoming', 'public_data', 'web_search'].includes(route)
   const evidenceCount = (state.evidence || []).length
   const hasEvidence = evidenceCount > 0
-  const noEvidenceDisclosure = /没有检索到|暂未确认|无法确认|请以原文|打开原文/.test(safe)
-  const concise = safe.length <= 320 || /详细|展开|分析|方案|步骤|报告/.test(String(state.query || ''))
+  const noEvidenceDisclosure = /没有检索到|暂时没有找到|暂未确认|无法确认|请以原文|打开原文/.test(safe)
+  const concise = safe.length <= 220 || /详细|展开|分析|方案|步骤|报告/.test(String(state.query || ''))
   const actionable = route === 'social_chat' || route === 'time' || route === 'unsafe' || route === 'account_action' || route === 'capability_boundary'
     ? true
     : /下一步|建议|查看原文|打开|登录|订阅|确认|报名|联系/.test(safe)

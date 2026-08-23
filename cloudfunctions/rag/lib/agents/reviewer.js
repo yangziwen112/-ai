@@ -3,8 +3,8 @@ const { evaluateAnswer } = require('../quality')
 
 function deterministicReview(state) {
   const review = evaluateAnswer(state, state.draft)
-  if (!/详细|展开|分析|方案|步骤|报告/.test(String(state.query || '')) && review.answer.length > 320) {
-    review.answer = `${review.answer.slice(0, 317).replace(/[，、；：\s]+$/, '')}…`
+  if (!/详细|展开|分析|方案|步骤|报告/.test(String(state.query || '')) && review.answer.length > 220) {
+    review.answer = `${review.answer.slice(0, 217).replace(/[，、；：\s]+$/, '')}…`
     review.metrics.conciseScore = 100
   }
   return review
