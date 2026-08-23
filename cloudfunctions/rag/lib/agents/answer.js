@@ -17,10 +17,33 @@ function formatEvidence(items) {
 function formatToolResults(results) {
   return (results || []).map(item => {
     if (item.tool === 'current_time') return `[时间工具] ${item.text}（${item.timeZone}，${item.timestamp}）`
-    if (item.tool === 'web_search') return `[联网检索] ${item.results.map(result => `${result.title}\n${result.snippet || ''}\n${result.url || ''}`).join('\n\n') || '未检索到结果'}`
+    if (item.tool === 'web_search') return `[联网检索] ${(Array.isArray(item.results) ? item.results : []).map(result => `${result.title}\n${result.snippet || ''}\n${result.url || ''}`).join('\n\n') || '未检索到结果'}`
     if (item.tool === 'public_database') return `[公开数据库] 共 ${item.count || 0} 条；分类统计：${Object.entries(item.facets?.byCategory || {}).map(([key, value]) => `${key} ${value} 条`).join('、') || '无'}；有未来时间节点 ${item.facets?.upcoming || 0} 条\n${(item.records || []).map(record => `${record.title}｜${record.summary}｜来源：${record.sourceName}｜剩余${record.remainingDays == null ? '未知' : `${record.remainingDays}天`}`).join('\n') || '未检索到结果'}`
     return ''
   }).filter(Boolean).join('\n\n')
+}
+
+// 大模型不可用时仍返回可核验的数据库结果，避免一次网络/配额波动把整条工作流变成 500。
+function buildDegradedAnswer(state, error) {
+  const evidence = Array.isArray(state.evidence) ? state.evidence.slice(0, 3) : []
+  if (evidence.length) {
+    const lines = evidence.map((item, index) => {
+      const title = String(item.title || '未命名资讯').trim()
+      const summary = String(item.summary || item.description || '').trim().replace(/\s+/g, ' ')
+      const time = item.startTime || item.deadline || item.publishTime
+      return `${index + 1}. ${title}${time ? `（时间：${time}）` : ''}${summary ? `：${summary.slice(0, 64)}` : ''}`
+    })
+    return `我先找到这些相关资讯（模型暂时繁忙，以下以数据库原文为准）：\n${lines.join('\n')}`
+  }
+  const toolRecords = (state.toolResults || [])
+    .filter(item => item.tool === 'public_database' && Array.isArray(item.records))
+    .flatMap(item => item.records)
+    .slice(0, 3)
+  if (toolRecords.length) {
+    return `我先找到这些相关资讯（模型暂时繁忙，以下以数据库原文为准）：\n${toolRecords.map((item, index) => `${index + 1}. ${item.title || '未命名资讯'}`).join('\n')}`
+  }
+  if (state.imageUrls?.length) return '图片已收到，但图片理解服务暂时繁忙。你可以先补充文字说明，我会继续处理。'
+  return 'AI 整理服务暂时繁忙，暂未生成可靠答案。请稍后重试，或换一个更具体的关键词。'
 }
 
 const answerAgent = RunnableLambda.from(async state => {
@@ -68,10 +91,21 @@ const answerAgent = RunnableLambda.from(async state => {
         ...state.imageUrls.map(url => ({ type: 'image_url', image_url: { url } }))
       ]
     : `路由:${route}\n用户问题:${state.query}\n最近对话:\n${historyText || '无'}\n工具结果:\n${toolText || '无'}\n证据:\n${evidenceText || '无'}\n${priorDraft}`
-  const result = await invoke([
-    { role: 'system', content: `${PLATFORM_CONTEXT}\n${STYLE_RULES}\n${PRIVACY_RULES}\n${noEvidenceRule}\n回答要求：先给结论，再给最多 3 条关键点；默认不超过 180 个中文字符；不要复述问题、不要客套、不要使用夸张的 AI 口吻。只有用户明确要求详细说明时才展开。引用平台内容时使用【准确标题】。` },
-    { role: 'user', content: userContent }
-  ], { temperature: 0.25, maxTokens: 360, vision: !!state.imageUrls?.length })
+  let result
+  try {
+    result = await invoke([
+      { role: 'system', content: `${PLATFORM_CONTEXT}\n${STYLE_RULES}\n${PRIVACY_RULES}\n${noEvidenceRule}\n回答要求：先给结论，再给最多 3 条关键点；默认不超过 180 个中文字符；不要复述问题、不要客套、不要使用夸张的 AI 口吻。只有用户明确要求详细说明时才展开。引用平台内容时使用【准确标题】。` },
+      { role: 'user', content: userContent }
+    ], { temperature: 0.25, maxTokens: 360, vision: !!state.imageUrls?.length })
+  } catch (error) {
+    return {
+      draft: buildDegradedAnswer(state, error),
+      model: 'degraded-local',
+      usage: {},
+      stage: 'A',
+      trace: [...state.trace, { stage: 'A', agent: 'answer_degraded', reason: String(error?.message || 'LLM_UNAVAILABLE').slice(0, 120) }]
+    }
+  }
 
   return {
     draft: result.content,
