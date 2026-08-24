@@ -173,6 +173,10 @@ docs/                          产品、架构、部署和研究文档
 
 项目把“可信”理解为一组可以被检查的动作，而不是一句宣传语：来源能够回溯，时间能够解释，失败能够暴露，权限能够拒绝，用户能够知道答案为什么出现。公开页面只展示经过权限投影后的数据；管理员采集、模型调用和用户个人记录始终在服务端边界内完成。
 
+## 产品页面预览
+
+仓库保留少量产品页面截图，帮助学习者快速理解首页、校园动态、AI 助手、管理中心、消息和个人中心的交互边界。截图不包含微信开发者工具工作区或调试面板，完整列表见[产品页面截图](docs/screenshots/README.md)。
+
 ## 文档导航
 
 - [项目总览](docs/项目总览.md)
@@ -184,6 +188,7 @@ docs/                          产品、架构、部署和研究文档
 - [校园 Agent 评测 Skill](skills/campus-agent-evaluation/SKILL.md)
 - [校园 Agent 安全 Skill](skills/campus-agent-safety/SKILL.md)
 - [项目叙事与整体规划](docs/project-narrative-and-plan.md)
+- [产品页面截图](docs/screenshots/README.md)
 - [AI 多智能体工作流](docs/ai_multi_agent_workflow.md)
 - [校园资讯采集](docs/crawler_integration.md)
 - [微信视频号内容处理 Skill](docs/wechat-video-skill.md)
