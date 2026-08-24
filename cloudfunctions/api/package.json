@@ -1,7 +1,7 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "description": "小程序雲函數API",
+  "description": "\u5c0f\u7a0b\u5e8f\u96f2\u51fd\u6578API",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "^2.6.3"
@@ -15,5 +15,8 @@
     "function"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "overrides": {
+    "form-data": "4.0.6"
+  }
 }
